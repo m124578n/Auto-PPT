@@ -14,6 +14,7 @@ app.log.*
 *.lock
 # C extensions
 *.so
+output/
 
 # Distribution / packaging
 .Python

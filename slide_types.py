@@ -328,7 +328,7 @@ class SectionSlide(SlideType):
 @SlideTypeRegistry.register('text_content')
 class TextContentSlide(SlideType):
     """純文字內容頁"""
-    
+
     @classmethod
     def get_json_example(cls) -> Dict[str, Any]:
         return {
@@ -337,21 +337,21 @@ class TextContentSlide(SlideType):
             "bullets": ["要點1", "要點2", "要點3"],
             "indent_levels": [0, 0, 1]
         }
-    
+
     @classmethod
     def get_description(cls) -> str:
-        return "純文字內容頁（項目符號列表，indent_levels: 0=主要點, 1=次要點）"
-    
+        return "純文字內容頁（項目符號列表，indent_levels: 0=主要點, 1=次要點），bullets要在五個以內，超過五個要分頁"
+
     def generate_html(self) -> str:
         title = self.data.get('title', '')
         bullets = self.data.get('bullets', [])
         indent_levels = self.data.get('indent_levels', [0] * len(bullets))
-        
+
         bullets_html = ""
         for bullet, level in zip(bullets, indent_levels):
             indent_class = f"indent-{level}" if level > 0 else ""
             bullets_html += f'<li class="{indent_class}">{bullet}</li>\n'
-        
+
         return f"""
         <div class="slide slide-content">
             <div class="slide-content">
@@ -362,10 +362,10 @@ class TextContentSlide(SlideType):
             </div>
         </div>
         """
-    
+
     def generate_pptx(self, prs: Presentation) -> Slide:
         slide = prs.slides.add_slide(prs.slide_layouts[6])
-        
+
         # 標題
         title = self.data.get('title', '')
         if title:
@@ -374,7 +374,7 @@ class TextContentSlide(SlideType):
             )
             title_frame = title_box.text_frame
             title_frame.word_wrap = True
-            
+
             # 處理換行符號，為每一行創建單獨的段落
             lines = title.split('\n')
             for i, line in enumerate(lines):
@@ -382,36 +382,44 @@ class TextContentSlide(SlideType):
                     p = title_frame.paragraphs[0]
                 else:
                     p = title_frame.add_paragraph()
-                
+
                 p.text = line
                 p.alignment = PP_ALIGN.CENTER
                 p.font.size = Pt(38)
                 p.font.bold = True
                 p.font.color.rgb = RGBColor(44, 62, 80)
-            
+
             # 標題下劃線
+            if len(title) < 17:
+                bottom = 1.35
+            else:
+                bottom = 1.95
             line = slide.shapes.add_shape(
-                MSO_SHAPE.RECTANGLE, Inches(0.6), Inches(1.35), Inches(8.8), Inches(0.05)
+                MSO_SHAPE.RECTANGLE,
+                Inches(0.6),
+                Inches(bottom),
+                Inches(8.8),
+                Inches(0.05),
             )
             line.fill.solid()
             line.fill.fore_color.rgb = RGBColor(70, 130, 180)
             line.line.fill.background()
-        
+
         # 項目符號列表
         bullets = self.data.get('bullets', [])
         indent_levels = self.data.get('indent_levels', [0] * len(bullets))
-        
+
         if bullets:
             content_box = slide.shapes.add_textbox(
-                Inches(1.0), Inches(1.8), Inches(8.0), Inches(5.4)
+                Inches(1.0), Inches(bottom + 0.45), Inches(8.0), Inches(5.4)
             )
             text_frame = content_box.text_frame
             text_frame.word_wrap = True
-            
+
             # 根據項目數量調整字體
             num_items = len(bullets)
             avg_length = sum(len(b) for b in bullets) / num_items
-            
+
             if num_items >= 5 and avg_length > 25:
                 base_font_size, indent_font_size = 21, 19
                 base_spacing, indent_spacing = 12, 10
@@ -428,26 +436,56 @@ class TextContentSlide(SlideType):
                 base_font_size, indent_font_size = 24, 22
                 base_spacing, indent_spacing = 18, 16
                 line_spacing = 1.4
-            
+
             for i, (bullet, level) in enumerate(zip(bullets, indent_levels)):
                 is_indent = level > 0
-                
+
                 p = text_frame.paragraphs[0] if i == 0 else text_frame.add_paragraph()
-                
+                p.line_spacing = line_spacing
+
                 if is_indent:
-                    p.text = f"▸ {bullet}"
-                    p.font.size = Pt(indent_font_size)
+                    # 次要項目
                     p.level = 1
                     p.space_after = Pt(indent_spacing)
-                    p.font.color.rgb = RGBColor(85, 85, 85)
+
+                    # 使用 run 來分別設置箭頭和文字的大小
+                    # 清空默認文本
+                    if i == 0:
+                        p.clear()
+
+                    # 箭頭符號（固定大小）
+                    run_bullet = p.add_run()
+                    run_bullet.text = "▶ "
+                    run_bullet.font.size = Pt(20)  # 箭頭固定大小
+                    run_bullet.font.color.rgb = RGBColor(100, 100, 100)
+
+                    # 文字內容（根據項目數量調整）
+                    run_text = p.add_run()
+                    run_text.text = bullet
+                    run_text.font.size = Pt(indent_font_size)
+                    run_text.font.color.rgb = RGBColor(85, 85, 85)
                 else:
-                    p.text = f"▶ {bullet}"
-                    p.font.size = Pt(base_font_size)
+                    # 主要項目
+                    p.level = 0
                     p.space_after = Pt(base_spacing)
-                    p.font.color.rgb = RGBColor(52, 73, 94)
-                
-                p.line_spacing = line_spacing
-        
+
+                    # 使用 run 來分別設置箭頭和文字的大小
+                    # 清空默認文本
+                    if i == 0:
+                        p.clear()
+
+                    # 箭頭符號（固定大小）
+                    run_bullet = p.add_run()
+                    run_bullet.text = "▶ "
+                    run_bullet.font.size = Pt(26)  # 箭頭固定大小
+                    run_bullet.font.color.rgb = RGBColor(70, 130, 180)
+
+                    # 文字內容（根據項目數量調整）
+                    run_text = p.add_run()
+                    run_text.text = bullet
+                    run_text.font.size = Pt(base_font_size)
+                    run_text.font.color.rgb = RGBColor(52, 73, 94)
+
         return slide
 
 
@@ -735,23 +773,19 @@ class FullImageSlide(SlideType):
 @SlideTypeRegistry.register('closing')
 class ClosingSlide(SlideType):
     """結尾頁"""
-    
+
     @classmethod
     def get_json_example(cls) -> Dict[str, Any]:
-        return {
-            "slide_type": "closing",
-            "closing_text": "謝謝觀看",
-            "subtext": "期待與您同行"
-        }
-    
+        return {"slide_type": "closing", "closing_text": "謝謝觀看", "subtext": ""}
+
     @classmethod
     def get_description(cls) -> str:
         return "結尾頁（漸層背景）"
-    
+
     def generate_html(self) -> str:
         closing_text = self.data.get('closing_text', '謝謝觀看')
         subtext = self.data.get('subtext', '')
-        
+
         return f"""
         <div class="slide slide-closing">
             <div class="slide-content">
@@ -760,10 +794,10 @@ class ClosingSlide(SlideType):
             </div>
         </div>
         """
-    
+
     def generate_pptx(self, prs: Presentation) -> Slide:
         slide = prs.slides.add_slide(prs.slide_layouts[6])
-        
+
         # 背景 - HTML: linear-gradient(135deg, #f093fb 0%, #f5576c 100%)
         # 使用中間色 #F375B4
         bg = slide.shapes.add_shape(
@@ -772,7 +806,7 @@ class ClosingSlide(SlideType):
         bg.fill.solid()
         bg.fill.fore_color.rgb = RGBColor(243, 117, 180)
         bg.line.fill.background()
-        
+
         # 結尾標題（注意：HTML中是 h1）
         closing_text = self.data.get('closing_text', '謝謝觀看')
         if closing_text:
@@ -781,7 +815,7 @@ class ClosingSlide(SlideType):
             )
             title_frame = title_box.text_frame
             title_frame.word_wrap = True
-            
+
             # 處理換行符號，為每一行創建單獨的段落
             lines = closing_text.split('\n')
             for i, line in enumerate(lines):
@@ -789,7 +823,7 @@ class ClosingSlide(SlideType):
                     p = title_frame.paragraphs[0]
                 else:
                     p = title_frame.add_paragraph()
-                
+
                 p.text = line
                 p.alignment = PP_ALIGN.CENTER
                 # 根據標題長度調整字體大小
@@ -799,7 +833,7 @@ class ClosingSlide(SlideType):
                     p.font.size = Pt(50)
                 p.font.bold = True
                 p.font.color.rgb = RGBColor(255, 255, 255)
-        
+
         # 提取副文字
         subtext = self.data.get('subtext', '')
         if subtext:
@@ -808,7 +842,7 @@ class ClosingSlide(SlideType):
             )
             subtext_frame = subtext_box.text_frame
             subtext_frame.word_wrap = True
-            
+
             # 處理換行符號，為每一行創建單獨的段落
             lines = subtext.split('\n')
             for i, line in enumerate(lines):
@@ -816,7 +850,7 @@ class ClosingSlide(SlideType):
                     p = subtext_frame.paragraphs[0]
                 else:
                     p = subtext_frame.add_paragraph()
-                
+
                 p.text = line
                 p.alignment = PP_ALIGN.CENTER
                 # 根據副文字長度調整字體大小
@@ -825,6 +859,5 @@ class ClosingSlide(SlideType):
                 else:
                     p.font.size = Pt(26)
                 p.font.color.rgb = RGBColor(255, 255, 255)
-        
-        return slide
 
+        return slide

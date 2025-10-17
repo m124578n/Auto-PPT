@@ -95,9 +95,30 @@ python ai_html_to_ppt.py
 1. 使用 AI 分析 `TEXT_CONTENT` 和圖片
 2. 生成簡報結構（JSON）
 3. 輸出 HTML 文件供預覽
-4. 保存數據文件供後續使用
+4. **自動生成 PPTX 文件** ✨
+5. 保存數據文件供後續使用
 
-#### 2. 轉換為 PPTX
+#### 2. 使用 AutoPPT 類（推薦）
+
+```python
+from ai_html_to_ppt import AutoPPT
+import os
+
+# 初始化
+auto_ppt = AutoPPT(
+    api_key=os.getenv("GEMINI_API_KEY"),
+    use_images=False
+)
+
+# 一鍵生成 HTML + JSON + PPTX
+data = auto_ppt.generate(
+    text_content="你的簡報內容...",
+    pdf_file=None,  # 可選：PDF 文件路徑
+    save_files=True  # 自動保存所有格式
+)
+```
+
+#### 3. 轉換現有 JSON 為 PPTX
 
 ```bash
 python convert_html_to_pptx.py
