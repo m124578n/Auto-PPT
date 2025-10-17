@@ -2,8 +2,8 @@ import os
 
 from dotenv import load_dotenv
 
-from ai_html_to_ppt import AutoPPT
-from slide_types import SlideTypeRegistry
+from AutoPPT import AutoPPT
+from AutoPPT.slide_types import SlideTypeRegistry
 
 load_dotenv()
 
