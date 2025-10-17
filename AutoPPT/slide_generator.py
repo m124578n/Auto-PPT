@@ -9,7 +9,7 @@ from typing import Any, Dict, List
 from pptx import Presentation
 from pptx.util import Inches
 
-from slide_types import SlideTypeRegistry
+from .slide_types import SlideTypeRegistry
 
 
 # ==================== HTML 生成器 ====================
@@ -668,4 +668,3 @@ class HTMLToPPTXParser:
     def save(self, output_path: str):
         """保存 PPTX 文件"""
         self.generator.save(output_path)
-

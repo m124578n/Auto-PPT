@@ -1,8 +1,11 @@
+import asyncio
 import os
+import tempfile
 
 from dotenv import load_dotenv
 
 from AutoPPT import AutoPPT
+from AutoPPT.scrapy import AsyncScrapyPlaywright
 from AutoPPT.slide_types import SlideTypeRegistry
 
 load_dotenv()
@@ -44,7 +47,7 @@ TEXT_CONTENT = "請根據我提供的pdf當成content來生成簡報"
 # DAY 6: 名古屋中部國際機場 → 台北
 # """
 
-USE_IMAGES = False
+USE_IMAGES = True
 
 
 # ==================== 主程序 ====================
@@ -64,6 +67,28 @@ def main():
     )
 
     auto_ppt.generate(text_content=TEXT_CONTENT, pdf_file=pdf_file, save_files=True)
+
+
+def scrapy_and_generate():
+    # TODO 把爬蟲包進去AutoPPT中, e.g. auto_ppt.generate(links=[...], files=[...])
+    scrapy = AsyncScrapyPlaywright()
+    tempfile_dir = tempfile.mkdtemp(dir="temp_dir")
+    extracted_content_file = os.path.join(tempfile_dir, "extracted_content.txt")
+    images_downloaded_dir = os.path.join(tempfile_dir, "images")
+
+    asyncio.run(
+        scrapy.start(
+            target_url="https://travel.liontravel.com/detail?NormGroupID=8a2fd4bf-0b87-4e5c-9c6b-3a38d81362af&GroupID=25XMD28CX-T&Platform=APP",
+            extracted_content_file=extracted_content_file,
+            images_downloaded_dir=images_downloaded_dir,
+        )
+    )
+    auto_ppt = AutoPPT(
+        api_key=API_KEY, use_images=USE_IMAGES, image_dir=images_downloaded_dir
+    )
+    with open(extracted_content_file, "r") as f:
+        text_content = f.read()
+    auto_ppt.generate(text_content=text_content, save_files=True)
 
 
 if __name__ == "__main__":

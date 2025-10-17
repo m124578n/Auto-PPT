@@ -19,8 +19,8 @@ from dotenv import load_dotenv
 from google import genai
 from google.genai import types
 
-from slide_generator import HTMLGenerator, PPTXGenerator
-from slide_types import SlideTypeRegistry
+from .slide_generator import HTMLGenerator, PPTXGenerator
+from .slide_types import SlideTypeRegistry
 
 load_dotenv()
 
@@ -33,7 +33,11 @@ class AutoPPT:
     """AI 驅動的自動簡報生成器"""
 
     def __init__(
-        self, api_key: str, use_images: bool = False, save_dir: str = "output"
+        self,
+        api_key: str,
+        use_images: bool = False,
+        save_dir: str = "output",
+        image_dir: str = "downloaded_images",
     ):
         """
         初始化 AutoPPT
@@ -47,26 +51,27 @@ class AutoPPT:
         self.image_metadata = {}
         self.image_files = []
         self.save_dir = save_dir
+        self.image_dir = image_dir
         if not os.path.exists(self.save_dir):
             os.makedirs(self.save_dir)
         self.random_filename_prefix = get_random_filename_prefix()
 
-    def load_images(self, image_dir: str = "downloaded_images"):
+    def load_images(self):
         """載入圖片資源"""
-        if not self.use_images or not os.path.exists(image_dir):
+        if not self.use_images or not os.path.exists(self.image_dir):
             return
 
         print("\n📸 載入圖片資源...")
-        for index, file in enumerate(sorted(os.listdir(image_dir))):
+        for index, file in enumerate(sorted(os.listdir(self.image_dir))):
             if file.endswith(('.jpg', '.jpeg', '.png')):
-                image_file = self.client.files.upload(file=f"{image_dir}/{file}")
+                image_file = self.client.files.upload(file=f"{self.image_dir}/{file}")
                 print(f"   ✓ 上傳圖片 {index + 1}: {file}")
 
                 image_id = f"img_{index+1:02d}"
                 self.image_files.append(image_file)
                 self.image_metadata[image_id] = {
                     "filename": file,
-                    "path": f"{image_dir}/{file}",
+                    "path": f"{self.image_dir}/{file}",
                     "gemini_file": image_file,
                     "index": index + 1,
                 }
@@ -284,4 +289,3 @@ class AutoPPT:
 
             traceback.print_exc()
             raise
-
