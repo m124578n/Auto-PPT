@@ -1,0 +1,48 @@
+{
+  "title": "新 Slide 類型示範",
+  "topic": "new_slide_types_demo",
+  "slides": [
+    {
+      "slide_type": "opening",
+      "title": "新 Slide 類型示範",
+      "subtitle": "展示如何輕鬆擴展功能"
+    },
+    {
+      "slide_type": "two_column_text",
+      "title": "傳統方法 vs 新架構",
+      "left_title": "傳統方法 ❌",
+      "left_content": "需要修改多個文件，HTML 和 PPTX 生成邏輯分散，難以維護，添加新功能成本高。",
+      "right_title": "新架構 ✅",
+      "right_content": "只需添加一個類，HTML 和 PPTX 邏輯統一，易於維護，擴展簡單快速。"
+    },
+    {
+      "slide_type": "quote_card",
+      "quote": "好的架構設計能讓你的代碼更易讀、更易維護、更易擴展。",
+      "author": "資深工程師",
+      "author_title": "Software Architect"
+    },
+    {
+      "slide_type": "text_content",
+      "title": "如何添加新 Slide 類型",
+      "bullets": [
+        "繼承 SlideType 基類",
+        "使用 @SlideTypeRegistry.register() 裝飾器",
+        "實現 generate_html() 方法",
+        "實現 generate_pptx() 方法",
+        "完成！立即可用"
+      ],
+      "indent_levels": [
+        0,
+        0,
+        1,
+        1,
+        0
+      ]
+    },
+    {
+      "slide_type": "closing",
+      "closing_text": "開始創建你的 Slide 類型吧！",
+      "subtext": "發揮你的創意"
+    }
+  ]
+}

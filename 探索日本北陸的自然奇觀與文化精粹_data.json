@@ -1,0 +1,113 @@
+{
+  "title": "日本黑部立山絕景之旅",
+  "topic": "探索日本北陸的自然奇觀與文化精粹",
+  "slides": [
+    {
+      "slide_type": "opening",
+      "title": "APP獨享！日本黑部立山絕景",
+      "subtitle": "省最大北陸旅遊｜雪壁芝櫻花毯六日",
+      "image_id": "img_04"
+    },
+    {
+      "slide_type": "section_divider",
+      "section_title": "夢幻北陸之旅：行程亮點"
+    },
+    {
+      "slide_type": "image_with_text",
+      "title": "北陸年度限定雙絕景",
+      "image_id": "img_09",
+      "text": "漫步於「立山黑部雪壁奇景」（4/15-6/25限定），感受大自然的壯闊雄偉。另有「茶臼山高原粉紅芝櫻花毯」（5月中旬-6月上旬限定），搭乘纜車俯瞰40萬株芝櫻地毯。",
+      "layout": "horizontal"
+    },
+    {
+      "slide_type": "image_with_text",
+      "title": "世界文化遺產與日本三大名園",
+      "image_id": "img_06",
+      "text": "走訪「白川鄉合掌村」，宛如童話世界中的薑餅屋街道。漫步「兼六園」，欣賞江戶時代林泉迴遊式大庭園的四季風情。",
+      "layout": "horizontal"
+    },
+    {
+      "slide_type": "image_with_text",
+      "title": "打卡秘境與國寶名城",
+      "image_id": "img_15",
+      "text": "探訪「奈良井宿」，日本最長宿場，完整保留江戶時代傳統建築。登臨日本國寶「犬山城」，最古老天守之一，俯瞰木曾川與城下町絕美景致。",
+      "layout": "horizontal"
+    },
+    {
+      "slide_type": "section_divider",
+      "section_title": "壯闊立山黑部：阿爾卑斯之路"
+    },
+    {
+      "slide_type": "image_with_text",
+      "title": "六種交通工具 深入立山黑部",
+      "image_id": "img_01",
+      "text": "獨家安排搭乘立山電動纜車、高原巴士、隧道電氣巴士、空中纜車、黑部登山纜車及關電隧道電氣巴士，多元體驗日本阿爾卑斯山的壯麗景觀。",
+      "layout": "horizontal"
+    },
+    {
+      "slide_type": "image_with_text",
+      "title": "期間限定：漫步雪之大谷WALK",
+      "image_id": "img_09",
+      "text": "每年4月15日~6月25日，親身走進高達20公尺的巨大雪牆之間，感受大自然鬼斧神工的震撼與療癒。",
+      "layout": "horizontal"
+    },
+    {
+      "slide_type": "section_divider",
+      "section_title": "深度探索：文化與味蕾饗宴"
+    },
+    {
+      "slide_type": "text_content",
+      "title": "精選特色餐食",
+      "bullets": [
+        "信州牛&長野地產菇菇壽喜燒御膳",
+        "岐阜名物~朴葉味噌燒飛驒牛料理",
+        "立山鰻魚飯風味餐 (或日式風味套餐/簡易便當)"
+      ],
+      "indent_levels": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "slide_type": "image_with_text",
+      "title": "財運與戀愛運聖地：三光稻荷神社",
+      "image_id": "img_08",
+      "text": "日本中部知名「洗錢」神社，祈求財運、結緣能量UP！迷你千鳥居更是熱門打卡景點，感受濃厚的日式文化氛圍。",
+      "layout": "horizontal"
+    },
+    {
+      "slide_type": "section_divider",
+      "section_title": "安心旅程：尊榮住宿與服務"
+    },
+    {
+      "slide_type": "image_with_text",
+      "title": "保證入住：名古屋中部國際機場喜來登福朋飯店",
+      "image_id": "img_05",
+      "text": "尊享萬豪集團系列飯店2晚住宿，距機場僅需步行約5分鐘。現代化客房配備酒吧、撞球台、健身房等設施，保證25平米舒適大空間。",
+      "layout": "horizontal"
+    },
+    {
+      "slide_type": "text_content",
+      "title": "旅遊安全與貼心提醒",
+      "bullets": [
+        "本行程最低出團人數16人，使用合法營業用綠牌車及專業導遊。",
+        "住宿皆為二人一室，單人房需求或加價請洽業務人員。",
+        "高山地區（海拔約3000公尺）需攜帶禦寒衣物、手套、圍巾等。",
+        "出國前請詳閱防疫安全與安全守則，確保旅途順暢愉快。"
+      ],
+      "indent_levels": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "slide_type": "closing",
+      "closing_text": "雄獅旅行社 誠摯邀請您",
+      "subtext": "立即預訂，開啟您的日本北陸絕景之旅！\nAPP獨享！輸碼【Hokuriku1000】現折1千",
+      "image_id": "img_04"
+    }
+  ]
+}

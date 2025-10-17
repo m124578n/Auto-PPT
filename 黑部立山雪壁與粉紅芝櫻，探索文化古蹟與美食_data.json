@@ -1,0 +1,121 @@
+{
+  "title": "日本北陸春日絕景之旅",
+  "topic": "黑部立山雪壁與粉紅芝櫻，探索文化古蹟與美食",
+  "slides": [
+    {
+      "slide_type": "opening",
+      "title": "APP獨享！日本黑部立山絕景",
+      "subtitle": "省最大北陸旅遊｜立山雪壁絕景x粉紅芝櫻花毯！"
+    },
+    {
+      "slide_type": "section_divider",
+      "section_title": "獨家優惠與北陸雙絕景"
+    },
+    {
+      "slide_type": "text_content",
+      "title": "APP獨享限時優惠",
+      "bullets": [
+        "APP獨享！輸碼【Hokuriku1000】現折1千",
+        "省最大北陸旅遊！",
+        "北陸年度限定 震撼２個月",
+        "出發日期：2025/05/12 - 2025/05/31",
+        "價格：TWD 43,900 - 47,900"
+      ],
+      "indent_levels": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "slide_type": "image_with_text",
+      "title": "立山黑部雪壁奇景與六種交通",
+      "image_id": "img_04",
+      "text": "特別安排搭乘六項交通工具～登上【立山黑部】漫步雪牆森呼吸，體驗震撼２個月的年度限定奇景！",
+      "layout": "horizontal"
+    },
+    {
+      "slide_type": "full_image",
+      "title": "期間限定！粉紅芝櫻花毯",
+      "image_id": "img_13",
+      "caption": "天空花迴廊【２０２５茶臼山高原芝櫻祭】，沉浸粉紅花海"
+    },
+    {
+      "slide_type": "section_divider",
+      "section_title": "歷史文化與秘境探索"
+    },
+    {
+      "slide_type": "image_with_text",
+      "title": "世界文化遺產｜白川鄉合掌村",
+      "image_id": "img_06",
+      "text": "漫步其中，彷彿置身童話世界中的薑餅屋街道，感受獨特的歷史風貌。",
+      "layout": "horizontal"
+    },
+    {
+      "slide_type": "image_with_text",
+      "title": "日本三大名園｜兼六園",
+      "image_id": "img_11",
+      "text": "兼具「宏大、幽邃、人力、蒼古、水泉、眺望」六勝之美，體驗四季庭園風情。",
+      "layout": "horizontal"
+    },
+    {
+      "slide_type": "image_with_text",
+      "title": "打卡秘境｜奈良井宿",
+      "image_id": "img_15",
+      "text": "長野縣最長的宿場街道，完整保留了江戶時代的懷舊日式風貌與歷史痕跡。",
+      "layout": "horizontal"
+    },
+    {
+      "slide_type": "image_with_text",
+      "title": "國寶名城與戀愛神社",
+      "image_id": "img_03",
+      "text": "探訪日本國寶【犬山城】，感受戰國風華；並前往【三光稻荷神社】祈求良緣。",
+      "layout": "horizontal"
+    },
+    {
+      "slide_type": "section_divider",
+      "section_title": "在地美食、舒適住宿與行程總覽"
+    },
+    {
+      "slide_type": "image_with_text",
+      "title": "舌尖上的北陸饗宴",
+      "image_id": "img_07",
+      "text": "品嚐【信州牛&長野地產菇菇壽喜燒御膳】與【岐阜名物~朴葉味噌燒飛驒牛料理】，滿足您的味蕾。",
+      "layout": "horizontal"
+    },
+    {
+      "slide_type": "image_with_text",
+      "title": "舒適休憩｜福朋喜來登溫泉酒店",
+      "image_id": "img_05",
+      "text": "提供高品質的住宿環境與溫泉設施，讓您盡享旅途的舒適與放鬆。",
+      "layout": "horizontal"
+    },
+    {
+      "slide_type": "text_content",
+      "title": "六日精華行程總覽",
+      "bullets": [
+        "DAY 1: 台北 → 名古屋中部國際機場",
+        "DAY 2: 世界文化遺產【白川鄉合掌村】→ 日本三大名園【兼六園】→ 金澤城跡",
+        "DAY 3: 立山黑部阿爾卑斯路線 - 搭乘六種交通工具登山",
+        "DAY 4: 【奈良井宿】→ 【茶臼山高原芝櫻祭】→ 名古屋市區",
+        "DAY 5: 【熱田神宮】→ 【三光稻荷神社】→ 【犬山城】→ 常滑購物中心",
+        "DAY 6: 名古屋中部國際機場 → 台北"
+      ],
+      "indent_levels": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "slide_type": "closing",
+      "closing_text": "期待與您同行，探索日本北陸！",
+      "subtext": "立即預訂，APP獨享優惠，開啟您的夢幻之旅！"
+    }
+  ]
+}

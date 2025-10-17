@@ -1,0 +1,464 @@
+
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>新 Slide 類型示範</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: '微軟正黑體', 'Microsoft JhengHei', 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .presentation-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .slide {
+            width: 100%;
+            aspect-ratio: 4 / 3;
+            background: white;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+            display: none;
+        }
+        
+        .slide.active {
+            display: block;
+            animation: slideIn 0.5s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .slide-content {
+            padding: 60px 80px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* 開場頁 */
+        .slide-opening {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .slide-opening .slide-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .slide-opening .main-title {
+            font-size: 64px;
+            font-weight: bold;
+            color: white;
+            text-align: center;
+            margin-bottom: 30px;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.3);
+        }
+        
+        .slide-opening .subtitle {
+            font-size: 32px;
+            color: rgba(255,255,255,0.95);
+            text-align: center;
+        }
+        
+        /* 章節頁 */
+        .slide-section {
+            background: linear-gradient(135deg, #4682b4 0%, #2c5f8d 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .slide-section .slide-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .slide-section .section-title {
+            font-size: 56px;
+            font-weight: bold;
+            color: white;
+            text-align: center;
+            padding: 40px;
+        }
+        
+        .decoration-line {
+            width: 200px;
+            height: 4px;
+            background: white;
+            margin: 30px auto;
+            border-radius: 2px;
+        }
+        
+        /* 內容頁 */
+        .slide-content .slide-title {
+            font-size: 42px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 4px solid #4682b4;
+        }
+        
+        .bullet-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .bullet-list li {
+            font-size: 28px;
+            color: #34495e;
+            margin: 25px 0;
+            padding-left: 50px;
+            position: relative;
+            line-height: 1.6;
+        }
+        
+        .bullet-list li:before {
+            content: "▶";
+            position: absolute;
+            left: 0;
+            color: #4682b4;
+            font-size: 24px;
+        }
+        
+        .bullet-list li.indent-1 {
+            padding-left: 100px;
+            font-size: 24px;
+            color: #555;
+        }
+        
+        .bullet-list li.indent-1:before {
+            content: "▸";
+            left: 50px;
+            font-size: 20px;
+        }
+        
+        /* 圖文混合 */
+        .image-text-container {
+            display: grid;
+            gap: 40px;
+            flex: 1;
+        }
+        
+        .image-text-container.layout-horizontal {
+            grid-template-columns: 1fr 1fr;
+        }
+        
+        .image-text-container.layout-vertical {
+            grid-template-rows: auto auto;
+        }
+        
+        .image-box {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .image-box img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        
+        .text-box {
+            display: flex;
+            align-items: center;
+        }
+        
+        .text-box p {
+            font-size: 24px;
+            color: #2c3e50;
+            line-height: 1.8;
+        }
+        
+        /* 大圖展示 */
+        .full-image-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .full-image-container img {
+            max-width: 90%;
+            max-height: 70%;
+            object-fit: contain;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+        }
+        
+        .caption {
+            margin-top: 20px;
+            font-size: 20px;
+            color: #7f8c8d;
+            text-align: center;
+        }
+        
+        /* 結尾頁 */
+        .slide-closing {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .slide-closing .slide-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .slide-closing .closing-title {
+            font-size: 64px;
+            font-weight: bold;
+            color: white;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .slide-closing .closing-subtext {
+            font-size: 28px;
+            color: rgba(255,255,255,0.95);
+            text-align: center;
+        }
+        
+        /* 導航控制 */
+        .nav-controls {
+            position: fixed;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.7);
+            padding: 15px 30px;
+            border-radius: 50px;
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            backdrop-filter: blur(10px);
+        }
+        
+        .nav-controls button {
+            background: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            color: #2c3e50;
+            transition: all 0.3s;
+        }
+        
+        .nav-controls button:hover {
+            background: #4682b4;
+            color: white;
+            transform: scale(1.05);
+        }
+        
+        .nav-controls button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .slide-counter {
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            min-width: 80px;
+            text-align: center;
+        }
+        
+        /* 響應式 */
+        @media (max-width: 768px) {
+            .slide-content {
+                padding: 30px 40px;
+            }
+            
+            .slide-opening .main-title {
+                font-size: 40px;
+            }
+            
+            .image-text-container.layout-horizontal {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="presentation-container">
+        
+        <div class="slide slide-opening">
+            <div class="slide-content">
+                <h1 class="main-title">新 Slide 類型示範</h1>
+                <p class="subtitle">展示如何輕鬆擴展功能</p>
+            </div>
+        </div>
+        
+
+        <div class="slide slide-content">
+            <div class="slide-content">
+                <h2 class="slide-title">傳統方法 vs 新架構</h2>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px; flex: 1;">
+                    <div style="background: #f8f9fa; padding: 30px; border-radius: 10px;">
+                        <h3 style="color: #4682b4; margin-bottom: 20px; font-size: 28px;">傳統方法 ❌</h3>
+                        <p style="font-size: 22px; color: #2c3e50; line-height: 1.6;">需要修改多個文件，HTML 和 PPTX 生成邏輯分散，難以維護，添加新功能成本高。</p>
+                    </div>
+                    <div style="background: #f8f9fa; padding: 30px; border-radius: 10px;">
+                        <h3 style="color: #4682b4; margin-bottom: 20px; font-size: 28px;">新架構 ✅</h3>
+                        <p style="font-size: 22px; color: #2c3e50; line-height: 1.6;">只需添加一個類，HTML 和 PPTX 邏輯統一，易於維護，擴展簡單快速。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+
+        <div class="slide slide-quote">
+            <div class="slide-content" style="display: flex; align-items: center; justify-content: center;">
+                <div style="max-width: 800px; text-align: center;">
+                    <div style="font-size: 48px; color: #4682b4; margin-bottom: 20px;">"</div>
+                    <p style="font-size: 32px; color: #2c3e50; line-height: 1.6; font-style: italic; margin-bottom: 40px;">
+                        好的架構設計能讓你的代碼更易讀、更易維護、更易擴展。
+                    </p>
+                    <div style="font-size: 48px; color: #4682b4; margin-bottom: 20px;">"</div>
+                    <div style="border-top: 3px solid #4682b4; padding-top: 30px;">
+                        <p style="font-size: 24px; color: #34495e; font-weight: bold; margin-bottom: 10px;">
+                            資深工程師
+                        </p>
+                        <p style="font-size: 20px; color: #7f8c8d;">Software Architect</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+
+        <div class="slide slide-content">
+            <div class="slide-content">
+                <h2 class="slide-title">如何添加新 Slide 類型</h2>
+                <ul class="bullet-list">
+                    <li class="">繼承 SlideType 基類</li>
+<li class="">使用 @SlideTypeRegistry.register() 裝飾器</li>
+<li class="indent-1">實現 generate_html() 方法</li>
+<li class="indent-1">實現 generate_pptx() 方法</li>
+<li class="">完成！立即可用</li>
+
+                </ul>
+            </div>
+        </div>
+        
+
+        <div class="slide slide-closing">
+            <div class="slide-content">
+                <h1 class="closing-title">開始創建你的 Slide 類型吧！</h1>
+                <p class="closing-subtext">發揮你的創意</p>
+            </div>
+        </div>
+        
+    </div>
+    
+    <div class="nav-controls">
+        <button id="prevBtn">◀ 上一張</button>
+        <span class="slide-counter"><span id="currentSlide">1</span> / <span id="totalSlides">0</span></span>
+        <button id="nextBtn">下一張 ▶</button>
+    </div>
+    
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+        
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const currentSlideSpan = document.getElementById('currentSlide');
+        const totalSlidesSpan = document.getElementById('totalSlides');
+        
+        totalSlidesSpan.textContent = totalSlides;
+        
+        function showSlide(n) {
+            slides.forEach((slide, i) => {
+                slide.classList.remove('active');
+                if (i === n) {
+                    slide.classList.add('active');
+                }
+            });
+            
+            currentSlideSpan.textContent = n + 1;
+            prevBtn.disabled = n === 0;
+            nextBtn.disabled = n === totalSlides - 1;
+        }
+        
+        function nextSlide() {
+            if (currentSlide < totalSlides - 1) {
+                currentSlide++;
+                showSlide(currentSlide);
+            }
+        }
+        
+        function prevSlide() {
+            if (currentSlide > 0) {
+                currentSlide--;
+                showSlide(currentSlide);
+            }
+        }
+        
+        prevBtn.addEventListener('click', prevSlide);
+        nextBtn.addEventListener('click', nextSlide);
+        
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ') {
+                e.preventDefault();
+                nextSlide();
+            } else if (e.key === 'ArrowLeft') {
+                e.preventDefault();
+                prevSlide();
+            }
+        });
+        
+        // 初始化
+        if (totalSlides > 0) {
+            showSlide(0);
+        }
+    </script>
+</body>
+</html>
+        
