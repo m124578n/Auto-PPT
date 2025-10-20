@@ -506,8 +506,6 @@ class HTMLTextExtractor:
         return f"{parsed.scheme}://{parsed.netloc}/"
 
 
-
-
 class AsyncScrapyPlaywright(BaseScrapy):
     async def start(self, target_url, extracted_content_file, images_downloaded_dir):
         proxy_manager = SimpleProxyManager()
@@ -756,3 +754,244 @@ class AsyncScrapyPlaywright(BaseScrapy):
                 await browser.close()
 
 
+class SyncScrapyPlaywright(BaseScrapy):
+    """同步版本的 Playwright 爬虫"""
+
+    def start(self, target_url, extracted_content_file, images_downloaded_dir):
+        """
+        同步爬取网页内容
+
+        Args:
+            target_url: 目标URL
+            extracted_content_file: 提取内容保存路径
+            images_downloaded_dir: 图片下载目录
+        """
+        proxy_manager = SimpleProxyManager()
+        proxy_server = None
+        proxy_request = None
+
+        # 测试直连
+        try:
+            response = requests.get(target_url, timeout=10)
+            if response.status_code != 200:
+                print("无法访问页面，尝试获取代理")
+                # 尝试获取可用的代理
+                for attempt in range(len(proxy_manager.proxies)):
+                    proxy = proxy_manager.get_next_proxy()
+                    if proxy and proxy_manager.test_proxy(proxy, target_url):
+                        proxy_server = f"http://{proxy}"
+                        proxy_request = {
+                            "http": f"http://{proxy}",
+                            "https": f"http://{proxy}",
+                        }
+                        break
+                    else:
+                        print(f"代理 {proxy} 不可用，尝试下一个...")
+
+                if not proxy_server:
+                    print("没有可用的代理，使用直连")
+        except Exception as e:
+            print(f"连接测试失败: {e}")
+
+        # 使用同步 playwright
+        with Stealth().use_sync(sync_playwright()) as p:
+            ua = UserAgent()
+
+            # 启动浏览器
+            browser = p.chromium.launch(
+                headless=True,
+                args=[
+                    "--disable-blink-features=AutomationControlled",
+                    "--disable-web-security",
+                    "--no-sandbox",
+                    "--disable-setuid-sandbox",
+                    "--disable-dev-shm-usage",
+                    "--disable-extensions",
+                    "--disable-gpu",
+                    "--disable-software-rasterizer",
+                    "--disable-background-timer-throttling",
+                    "--disable-backgrounding-occluded-windows",
+                    "--disable-renderer-backgrounding",
+                    "--disable-features=VizDisplayCompositor",
+                    "--disable-extensions-file-access-check",
+                    "--disable-extensions-except",
+                    "--disable-plugins-discovery",
+                    "--disable-default-apps",
+                    "--no-first-run",
+                    "--no-default-browser-check",
+                    "--disable-features=TranslateUI,VizDisplayCompositor",
+                    "--disable-ipc-flooding-protection",
+                    "--enable-webgl",
+                    "--use-gl=swiftshader",
+                    "--enable-accelerated-2d-canvas",
+                ],
+                devtools=False,
+            )
+
+            # 配置代理
+            if proxy_server:
+                proxy = {"server": proxy_server}
+            else:
+                proxy = None
+
+            # 创建浏览器上下文
+            context = browser.new_context(
+                user_agent=ua.random,
+                viewport={"width": 1920, "height": 1080},
+                bypass_csp=True,
+                java_script_enabled=True,
+                extra_http_headers={
+                    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8",
+                    "Accept-Language": "zh-TW,zh;q=0.9,en;q=0.8,ja;q=0.7",
+                    "Accept-Encoding": "gzip, deflate, br",
+                    "Cache-Control": "max-age=0",
+                    "Upgrade-Insecure-Requests": "1",
+                    "Sec-Fetch-Dest": "document",
+                    "Sec-Fetch-Mode": "navigate",
+                    "Sec-Fetch-Site": "none",
+                    "Sec-Fetch-User": "?1",
+                },
+                proxy=proxy,
+            )
+
+            page = context.new_page()
+
+            try:
+                # 设置超时时间
+                print("设置超时时间")
+                page.set_default_timeout(60000)
+
+                base_url = target_url
+                image_urls = []
+
+                # 响应拦截器
+                def handle_response(response):
+                    content_type = response.headers.get("content-type", "")
+                    if "image" in content_type.lower():
+                        image_urls.append(response.url)
+                        print(f"拦截到图片响应: {response.url}")
+                        print(f"Content-Type: {content_type}")
+                        print(f"状态码: {response.status}")
+
+                page.on("response", handle_response)
+
+                # 访问页面
+                print("访问页面")
+                response = page.goto(base_url)
+                print(f"访问页面完成，状态: {response.status if response else 'None'}")
+
+                # 尝试点击特定按钮（针对某些网站）
+                try:
+                    button_selector = "/html/body/div/div[1]/div[3]/div/div/form/div/div/span/span/button"
+                    if page.locator(button_selector).count() == 0:
+                        print("没有找到特定按钮，跳过")
+                    else:
+                        print(f"尝试点击按钮: {button_selector}")
+                        page.click(f"xpath={button_selector}")
+                        print("按钮点击成功")
+                        page.wait_for_timeout(2000)
+                except Exception as e:
+                    print(f"点击按钮失败: {e}")
+
+                # 等待初始内容加载
+                page.wait_for_load_state("domcontentloaded")
+                print("DOM 内容已加载")
+
+                # 滚动页面触发懒加载
+                print("滚动页面触发懒加载...")
+                for i in range(10):
+                    page.evaluate("window.scrollBy(0, 300)")
+                    page.wait_for_timeout(500)
+
+                # 滚动到底部
+                print("滚动到底部")
+                page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
+                page.wait_for_timeout(2000)
+
+                # 额外等待动态内容
+                print("额外等待动态内容")
+                page.wait_for_timeout(2000)
+
+                # 获取 HTML
+                print("获取 HTML")
+                html_content = page.content()
+
+                # 提取内容
+                extractor = HTMLTextExtractor()
+                original_images_downloaded_dir = (
+                    images_downloaded_dir + "_original_images"
+                )
+                os.makedirs(images_downloaded_dir, exist_ok=True)
+                os.makedirs(original_images_downloaded_dir, exist_ok=True)
+
+                content = extractor.extract_content(
+                    html_content,
+                    base_url,
+                    images_downloaded_dir,
+                    image_urls,
+                    original_images_downloaded_dir,
+                    proxy_request,
+                )
+
+                # 保存文字结果（同步方式）
+                with open(extracted_content_file, "w", encoding="utf-8") as f:
+                    f.write("=== 文字内容 ===\n")
+                    for item in content["texts"]:
+                        f.write(f"{item['text']}\n")
+
+                # 打印统计信息
+                print(f"总共提取了 {len(content['texts'])} 个文字元素")
+                print(f"总共下载了 {len(content['images'])} 张图片")
+
+                # 如果图片太少，进行全页面截图
+                if content["images"] == [] or len(content["images"]) <= 3:
+                    print("没有下载到足够图片，开始进行全页面截图")
+
+                    # 滚动到页面顶部
+                    page.evaluate("window.scrollTo(0, 0)")
+                    page.wait_for_timeout(1000)
+
+                    # 获取页面总高度
+                    total_height = page.evaluate("document.body.scrollHeight")
+                    viewport_height = page.viewport_size["height"]
+
+                    screenshot_count = 0
+                    current_position = 0
+
+                    while current_position < total_height:
+                        # 截图
+                        screenshot_path = os.path.join(
+                            images_downloaded_dir,
+                            f"screenshot_{screenshot_count:03d}.jpg",
+                        )
+                        original_screenshot_path = os.path.join(
+                            original_images_downloaded_dir,
+                            f"original_screenshot_{screenshot_count:03d}.jpg",
+                        )
+
+                        page.screenshot(path=screenshot_path)
+                        page.screenshot(path=original_screenshot_path)
+                        print(f"截图保存至: {screenshot_path}")
+
+                        # 向下滚动一个视窗高度
+                        current_position += viewport_height
+                        page.evaluate(f"window.scrollTo(0, {current_position})")
+                        page.wait_for_timeout(1000)
+
+                        screenshot_count += 1
+
+                        # 防止无限循环
+                        if screenshot_count > 30:
+                            print("截图数量超过限制，停止截图")
+                            break
+
+                    print(f"完成全页面截图，共截取 {screenshot_count} 张图片")
+
+            except Exception as e:
+                print(f"Error: {e}")
+                page.screenshot(path="error.png")
+                raise e
+
+            finally:
+                context.close()
+                browser.close()

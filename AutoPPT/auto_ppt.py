@@ -12,12 +12,15 @@ AI 驅動的 HTML → PPTX 生成器（重構版）
 import json
 import os
 import random
+import uuid
 from pathlib import Path
-from typing import Dict
+from typing import Dict, List, Optional
 
 from dotenv import load_dotenv
 from google import genai
 from google.genai import types
+
+from AutoPPT.scrapy import SyncScrapyPlaywright
 
 from .slide_generator import HTMLGenerator, PPTXGenerator
 from .slide_types import SlideTypeRegistry
@@ -36,8 +39,8 @@ class AutoPPT:
         self,
         api_key: str,
         use_images: bool = False,
-        save_dir: str = "output",
-        image_dir: str = "downloaded_images",
+        output_dir: str = "temp_dir",
+        scrapy: SyncScrapyPlaywright = None,
     ):
         """
         初始化 AutoPPT
@@ -50,33 +53,42 @@ class AutoPPT:
         self.use_images = use_images
         self.image_metadata = {}
         self.image_files = []
-        self.save_dir = save_dir
-        self.image_dir = image_dir
-        if not os.path.exists(self.save_dir):
-            os.makedirs(self.save_dir)
+        self.text_content_files = []
+        self.save_output_dir = os.path.join(output_dir, "output")
+        self.save_content_dir = os.path.join(output_dir, "content")
+        self.save_image_dir = os.path.join(output_dir, "images")
+        if not os.path.exists(self.save_output_dir):
+            os.makedirs(self.save_output_dir)
+        if not os.path.exists(self.save_content_dir):
+            os.makedirs(self.save_content_dir)
+        if not os.path.exists(self.save_image_dir):
+            os.makedirs(self.save_image_dir)
         self.random_filename_prefix = get_random_filename_prefix()
+        self.scrapy = scrapy or SyncScrapyPlaywright()
 
     def load_images(self):
         """載入圖片資源"""
-        if not self.use_images or not os.path.exists(self.image_dir):
+        if not self.use_images or not os.path.exists(self.save_image_dir):
             return
 
         print("\n📸 載入圖片資源...")
-        for index, file in enumerate(sorted(os.listdir(self.image_dir))):
+        for index, file in enumerate(sorted(os.listdir(self.save_image_dir))):
             if file.endswith(('.jpg', '.jpeg', '.png')):
-                image_file = self.client.files.upload(file=f"{self.image_dir}/{file}")
+                image_file = self.client.files.upload(
+                    file=f"{self.save_image_dir}/{file}"
+                )
                 print(f"   ✓ 上傳圖片 {index + 1}: {file}")
 
                 image_id = f"img_{index+1:02d}"
                 self.image_files.append(image_file)
                 self.image_metadata[image_id] = {
                     "filename": file,
-                    "path": f"{self.image_dir}/{file}",
+                    "path": f"{self.save_image_dir}/{file}",
                     "gemini_file": image_file,
                     "index": index + 1,
                 }
 
-    def generate_prompt(self, text_content: str) -> str:
+    def generate_prompt(self, prompt: str) -> str:
         """生成 AI Prompt"""
         # 圖片列表信息
         image_list_info = (
@@ -112,8 +124,11 @@ class AutoPPT:
 
         return f"""請分析以下內容，生成一個結構化的演示文稿（適合 HTML 格式）。
 
+**使用者輸入**
+{prompt}
+
 **文字內容**：
-{text_content}
+請讀取我上傳的檔案，當作其內容。
 
 **可用圖片**：
 {image_list_info}
@@ -138,29 +153,19 @@ class AutoPPT:
 """
 
     def generate_presentation(
-        self, text_content: str, pdf_file: str = None, model: str = "gemini-2.5-flash"
+        self, contents: List[str], model: str = "gemini-2.5-flash"
     ) -> Dict:
         """
         使用 AI 生成簡報結構
 
         Args:
-            text_content: 文字內容
-            pdf_file: PDF 文件路徑（可選）
+            contents: 內容列表
             model: AI 模型名稱
 
         Returns:
             簡報數據（dict）
         """
         print("\n🤖 AI 分析內容並生成簡報結構...")
-
-        # 準備內容
-        contents = [self.generate_prompt(text_content), *self.image_files]
-
-        # 添加 PDF（如果有）
-        if pdf_file and os.path.exists(pdf_file):
-            pdf = self.client.files.upload(file=pdf_file)
-            contents.append(pdf)
-            print(f"   ✓ 已加載 PDF：{pdf_file}")
 
         # 調用 AI
         response = self.client.models.generate_content(
@@ -184,6 +189,32 @@ class AutoPPT:
 
         return ai_data
 
+    def upload_files(self, files: List[str]) -> List[str]:
+        """上傳檔案"""
+        uploaded_files = []
+        for file in files:
+            if os.path.exists(file):
+                uploaded_file = self.client.files.upload(file=file)
+            else:
+                print(f"   ❌ 檔案不存在：{file}")
+                continue
+            uploaded_files.append(uploaded_file)
+            print(f"   ✓ 已上傳檔案：{file}")
+        return uploaded_files
+
+    def scrape_url(self, url: str) -> None:
+        """爬取 URL"""
+
+        uid = uuid.uuid4()
+        content_file = os.path.join(self.save_content_dir, f"{uid}.txt")
+        self.scrapy.start(
+            target_url=url,
+            extracted_content_file=content_file,
+            images_downloaded_dir=self.save_image_dir,
+        )
+        self.text_content_files.append(content_file)
+        print(f"   ✓ 已爬取 URL：{url} 並保存到 {content_file}")
+
     def save_html(self, data: Dict, filename: str = None) -> str:
         """保存 HTML 文件"""
         print("\n🎨 生成 HTML 演示文稿...")
@@ -194,7 +225,7 @@ class AutoPPT:
         # 生成文件名
         if not filename:
             filename = os.path.join(
-                self.save_dir,
+                self.save_output_dir,
                 f"{self.random_filename_prefix}_{data['topic']}_presentation.html",
             )
 
@@ -211,7 +242,7 @@ class AutoPPT:
         """保存 JSON 數據文件"""
         if not filename:
             filename = os.path.join(
-                self.save_dir,
+                self.save_output_dir,
                 f"{self.random_filename_prefix}_{data['topic']}_data.json",
             )
 
@@ -233,7 +264,7 @@ class AutoPPT:
         # 生成文件名
         if not filename:
             filename = os.path.join(
-                self.save_dir,
+                self.save_output_dir,
                 f"{self.random_filename_prefix}_{data['topic']}.pptx",
             )
 
@@ -244,27 +275,44 @@ class AutoPPT:
         return filename
 
     def generate(
-        self, text_content: str, pdf_file: str = None, save_files: bool = True
+        self,
+        prompt: str,
+        save_files: bool = True,
+        url_links: Optional[List[str]] = None,
+        other_files: List[str] = [],
     ) -> Dict:
         """
         完整的簡報生成流程
 
         Args:
-            text_content: 文字內容
-            pdf_file: PDF 文件路徑（可選）
+            prompt: 提示詞
             save_files: 是否保存文件
+            url_links: 網頁連結列表（可選）
+            other_files: 其他檔案列表（默認空列表）
 
         Returns:
             簡報數據（dict）
         """
         try:
-            # 1. 載入圖片
+            # 爬蟲
+            if url_links:
+                for url in url_links:
+                    self.scrape_url(url)
+
+            # 載入圖片
             self.load_images()
 
-            # 2. 生成簡報結構
-            data = self.generate_presentation(text_content, pdf_file)
+            # 準備內容
+            contents = [
+                self.generate_prompt(prompt),
+                *self.image_files,
+                *self.upload_files(other_files + self.text_content_files),
+            ]
 
-            # 3. 保存文件
+            # 生成簡報結構
+            data = self.generate_presentation(contents)
+
+            # 保存文件
             if save_files:
                 self.save_html(data)
                 self.save_json(data)

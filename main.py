@@ -59,37 +59,31 @@ def main():
     print("=" * 60)
 
     # 初始化 AutoPPT
-    auto_ppt = AutoPPT(api_key=API_KEY, use_images=USE_IMAGES)
+    tempfile_dir = tempfile.mkdtemp(dir="temp_dir")
+    auto_ppt = AutoPPT(api_key=API_KEY, use_images=USE_IMAGES, output_dir=tempfile_dir)
 
     # 生成簡報（可選擇是否使用 PDF）
     pdf_file = (
         "投資月報_20250930.pdf" if os.path.exists("投資月報_20250930.pdf") else None
     )
 
-    auto_ppt.generate(text_content=TEXT_CONTENT, pdf_file=pdf_file, save_files=True)
+    auto_ppt.generate(prompt=TEXT_CONTENT, other_files=[pdf_file], save_files=True)
 
 
 def scrapy_and_generate():
-    # TODO 把爬蟲包進去AutoPPT中, e.g. auto_ppt.generate(links=[...], files=[...])
-    scrapy = AsyncScrapyPlaywright()
+    prompt = "請幫我統整這兩個旅遊的行程, 並生成簡報"
     tempfile_dir = tempfile.mkdtemp(dir="temp_dir")
-    extracted_content_file = os.path.join(tempfile_dir, "extracted_content.txt")
-    images_downloaded_dir = os.path.join(tempfile_dir, "images")
-
-    asyncio.run(
-        scrapy.start(
-            target_url="https://travel.liontravel.com/detail?NormGroupID=8a2fd4bf-0b87-4e5c-9c6b-3a38d81362af&GroupID=25XMD28CX-T&Platform=APP",
-            extracted_content_file=extracted_content_file,
-            images_downloaded_dir=images_downloaded_dir,
-        )
+    auto_ppt = AutoPPT(api_key=API_KEY, use_images=USE_IMAGES, output_dir=tempfile_dir)
+    auto_ppt.generate(
+        prompt=prompt,
+        save_files=True,
+        url_links=[
+            "https://travel.liontravel.com/detail?NormGroupID=8a2fd4bf-0b87-4e5c-9c6b-3a38d81362af&GroupID=25XMD28CX-T&Platform=APP",
+            "https://travel.liontravel.com/detail?NormGroupID=a854db3d-5df3-4bff-9dd4-f022f0d6d565&GroupID=25XMD29EK5-T&Platform=APP",
+        ],
     )
-    auto_ppt = AutoPPT(
-        api_key=API_KEY, use_images=USE_IMAGES, image_dir=images_downloaded_dir
-    )
-    with open(extracted_content_file, "r") as f:
-        text_content = f.read()
-    auto_ppt.generate(text_content=text_content, save_files=True)
 
 
 if __name__ == "__main__":
-    main()
+    # main()
+    scrapy_and_generate()

@@ -1,3 +1,3 @@
-from .playwright import AsyncScrapyPlaywright
+from .playwright import AsyncScrapyPlaywright, SyncScrapyPlaywright
 
-__all__ = ['AsyncScrapyPlaywright']
+__all__ = ["AsyncScrapyPlaywright", "SyncScrapyPlaywright"]
