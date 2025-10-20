@@ -1,11 +1,9 @@
-import asyncio
 import os
 import tempfile
 
 from dotenv import load_dotenv
 
 from AutoPPT import AutoPPT, SlideTypeRegistry
-from AutoPPT.scrapy import AsyncScrapyPlaywright
 
 load_dotenv()
 
