@@ -17,6 +17,7 @@ dependencies = [
     "pillow>=11.3.0",
     "playwright>=1.55.0",
     "playwright-stealth>=2.0.0",
+    "psutil>=7.1.1",
     "pymupdf>=1.26.5",
     "pypdf2>=3.0.1",
     "python-pptx>=1.0.2",

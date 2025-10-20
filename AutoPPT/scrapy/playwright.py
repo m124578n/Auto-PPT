@@ -6,6 +6,7 @@ import json
 import os
 import random
 import re
+import uuid
 from typing import Dict, List, Optional, Set
 from urllib.parse import urljoin, urlparse
 
@@ -19,6 +20,7 @@ from playwright.async_api import async_playwright
 from playwright.sync_api import sync_playwright
 from playwright_stealth import Stealth
 
+from AutoPPT import logger
 from AutoPPT.scrapy.base_scrapy import BaseScrapy
 
 
@@ -60,10 +62,10 @@ class SimpleProxyManager:
             proxies = {"http": f"http://{proxy}", "https": f"http://{proxy}"}
             response = requests.get(target_url, proxies=proxies, timeout=10)
             if response.status_code == 200:
-                print(f"代理測試成功: {proxy}")
+                logger.info(f"代理測試成功: {proxy}")
                 return True
         except Exception as e:
-            print(f"代理測試失敗: {proxy} - {e}")
+            logger.info(f"代理測試失敗: {proxy} - {e}")
         return False
 
 
@@ -251,7 +253,7 @@ class HTMLTextExtractor:
             return False
 
         except Exception as e:
-            print(f"圖片分析錯誤: {e}")
+            logger.info(f"圖片分析錯誤: {e}")
             return False
 
     def download_image(
@@ -311,7 +313,7 @@ class HTMLTextExtractor:
                 # 使用URL的MD5作為文件名
                 url_hash = hashlib.md5(full_url.encode()).hexdigest()
                 file_extension = os.path.splitext(urlparse(full_url).path)[1].lower()
-                print(f"full_url: {full_url}")
+                logger.info(f"full_url: {full_url}")
                 # 只處理 .jpg 或 .jpeg 文件
                 if file_extension not in [
                     ".jpg",
@@ -341,9 +343,9 @@ class HTMLTextExtractor:
                         )
                         response.raise_for_status()
                         img_data = response.content
-                        print(f"get")
+                        logger.info(f"get")
                     except Exception as e:
-                        print("first request failed")
+                        logger.info("first request failed")
                         headers = {
                             "User-Agent": ua.random,
                             "Accept": "image/webp,image/apng,image/*,*/*;q=0.8",
@@ -358,7 +360,7 @@ class HTMLTextExtractor:
                         )
                         response.raise_for_status()
                         img_data = response.content
-                        print(f"second request success")
+                        logger.info(f"second request success")
 
             filename = f"{url_hash}{file_extension}"
             original_filename = f"original_{url_hash}{file_extension}"
@@ -369,7 +371,7 @@ class HTMLTextExtractor:
 
             # 如果文件已存在，直接返回信息
             if os.path.exists(filepath):
-                print(f"exists")
+                logger.info(f"exists")
                 return {
                     "original_url": (
                         img_url[:100] + "..." if len(img_url) > 100 else img_url
@@ -384,9 +386,9 @@ class HTMLTextExtractor:
                 width, height = img.size
                 min_width = 500  # 設定最小寬度
                 min_height = 500  # 設定最小高度
-                print(f"圖片尺寸: {width}x{height}")
+                logger.info(f"圖片尺寸: {width}x{height}")
                 if width < min_width or height < min_height:
-                    print(f"圖片太小: {width}x{height}")
+                    logger.info(f"圖片太小: {width}x{height}")
                     return {
                         "original_url": (
                             img_url[:100] + "..." if len(img_url) > 100 else img_url
@@ -400,11 +402,11 @@ class HTMLTextExtractor:
 
             except Exception as e:
                 # 如果無法讀取圖片尺寸，記錄錯誤但繼續處理
-                print(f"Warning: Could not check image dimensions: {str(e)}")
+                logger.info(f"Warning: Could not check image dimensions: {str(e)}")
 
             # 檢查圖片大小
             if len(img_data) > 13 * 1024 * 1024:
-                print(f"檔案太大: {len(img_data)}")
+                logger.info(f"檔案太大: {len(img_data)}")
                 return {
                     "original_url": (
                         img_url[:100] + "..." if len(img_url) > 100 else img_url
@@ -415,7 +417,7 @@ class HTMLTextExtractor:
                 }
             # 保存圖片
             with open(filepath, "wb") as f:
-                print(f"save")
+                logger.info(f"save")
                 f.write(img_data)
 
             return {
@@ -450,9 +452,9 @@ class HTMLTextExtractor:
         # 找到並移除 class="recommend_wrapper" 的元素
         recommend_wrapper = soup.find(class_="recommend_wrapper")
         if recommend_wrapper:
-            print(f"移除 recommend_wrapper")
+            logger.info(f"移除 recommend_wrapper")
             recommend_wrapper.decompose()  # 完全移除元素
-            print(f"移除 recommend_wrapper 完成")
+            logger.info(f"移除 recommend_wrapper 完成")
 
         body = soup.find("body")
 
@@ -514,7 +516,7 @@ class AsyncScrapyPlaywright(BaseScrapy):
 
         response = requests.get(target_url, timeout=10)
         if response.status_code != 200:
-            print("無法訪問頁面，嘗試獲取代理")
+            logger.info("無法訪問頁面，嘗試獲取代理")
             # 嘗試獲取可用的代理
             for attempt in range(len(proxy_manager.proxies)):
                 proxy = proxy_manager.get_next_proxy()
@@ -526,10 +528,10 @@ class AsyncScrapyPlaywright(BaseScrapy):
                     }
                     break
                 else:
-                    print(f"代理 {proxy} 不可用，嘗試下一個...")
+                    logger.info(f"代理 {proxy} 不可用，嘗試下一個...")
 
             if not proxy_server:
-                print("沒有可用的代理，使用直連")
+                logger.info("沒有可用的代理，使用直連")
 
         async with Stealth().use_async(async_playwright()) as p:
             ua = UserAgent()
@@ -604,7 +606,7 @@ class AsyncScrapyPlaywright(BaseScrapy):
 
             try:
                 # 等待更長時間
-                print("等待更長時間")
+                logger.info("等待更長時間")
                 page.set_default_timeout(60000)
 
                 base_url = target_url
@@ -617,16 +619,16 @@ class AsyncScrapyPlaywright(BaseScrapy):
                     if "image" in content_type.lower():
                         if content_type.lower() in ["image/jpeg", "image/png", "image/webp"]:
                             image_urls.append(response.url)
-                            print(f"攔截到圖片響應: {response.url[:100]}...")
-                            print(f"Content-Type: {content_type}")
-                            print(f"狀態碼: {response.status}")
+                            logger.info(f"攔截到圖片響應: {response.url[:100]}...")
+                            logger.info(f"Content-Type: {content_type}")
+                            logger.info(f"狀態碼: {response.status}")
 
                 page.on("response", handle_response)
 
                 # 訪問頁面並等待加載
-                print("訪問頁面")
+                logger.info("訪問頁面")
                 response = await page.goto(base_url)
-                print(f"訪問頁面完成response: {response}")
+                logger.info(f"訪問頁面完成response: {response}")
 
                 # 點擊按鈕
                 # for amazon.com 點擊繼續的按鈕
@@ -634,40 +636,40 @@ class AsyncScrapyPlaywright(BaseScrapy):
                     # 沒有這個元素則跳過
                     button_selector = "/html/body/div/div[1]/div[3]/div/div/form/div/div/span/span/button"
                     if page.locator(button_selector).count() == 0:
-                        print("沒有這個元素，跳過")
+                        logger.info("沒有這個元素，跳過")
                     else:
-                        print(f"嘗試點擊按鈕: {button_selector}")
+                        logger.info(f"嘗試點擊按鈕: {button_selector}")
                         page.click(f"xpath={button_selector}")
-                        print("按鈕點擊成功")
+                        logger.info("按鈕點擊成功")
                         page.wait_for_timeout(2000)  # 等待點擊後的響應
                 except Exception as e:
-                    print(f"點擊按鈕失敗: {e}")
+                    logger.info(f"點擊按鈕失敗: {e}")
 
                 # 等待初始內容加載
                 await page.wait_for_load_state("domcontentloaded")
-                print("DOM 內容已加載")
+                logger.info("DOM 內容已加載")
 
                 # 滾動頁面觸發懶加載
-                print("滾動頁面觸發懶加載...")
+                logger.info("滾動頁面觸發懶加載...")
                 for i in range(10):
                     await page.evaluate("window.scrollBy(0, 300)")
                     await page.wait_for_timeout(500)
 
                 # 滾動到底部
-                print("滾動到底部")
+                logger.info("滾動到底部")
                 await page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
                 await page.wait_for_timeout(2000)
 
                 # 等待頁面完全加載
-                # print("等待頁面完全加載")
+                # logger.info("等待頁面完全加載")
                 # await page.wait_for_load_state("networkidle")
 
                 # 額外等待一些動態內容
-                print("額外等待一些動態內容")
+                logger.info("額外等待一些動態內容")
                 await page.wait_for_timeout(2000)
 
                 # 獲取 HTML
-                print("獲取 HTML")
+                logger.info("獲取 HTML")
                 html_content = await page.content()
 
                 # 創建提取器並提取內容
@@ -697,12 +699,12 @@ class AsyncScrapyPlaywright(BaseScrapy):
                         await f.write(f"{item['text']}\n")
 
                 # 打印統計信息
-                print(f"總共提取了 {len(content['texts'])} 個文字元素")
-                print(f"總共下載了 {len(content['images'])} 張圖片")
+                logger.info(f"總共提取了 {len(content['texts'])} 個文字元素")
+                logger.info(f"總共下載了 {len(content['images'])} 張圖片")
 
                 if content["images"] == [] or len(content["images"]) <= 3:
                     # 如果沒有下載到任何圖片，進行全頁面截圖
-                    print("沒有下載到圖片，開始進行全頁面截圖")
+                    logger.info("沒有下載到圖片，開始進行全頁面截圖")
 
                     # 滾動到頁面頂部
                     await page.evaluate("window.scrollTo(0, 0)")
@@ -728,7 +730,7 @@ class AsyncScrapyPlaywright(BaseScrapy):
 
                         await page.screenshot(path=screenshot_path)
                         await page.screenshot(path=original_screenshot_path)
-                        print(f"截圖保存至: {screenshot_path}")
+                        logger.info(f"截圖保存至: {screenshot_path}")
 
                         # 向下滾動一個視窗高度
                         current_position += viewport_height
@@ -739,13 +741,13 @@ class AsyncScrapyPlaywright(BaseScrapy):
 
                         # 防止無限循環
                         if screenshot_count > 30:
-                            print("截圖數量超過限制，停止截圖")
+                            logger.info("截圖數量超過限制，停止截圖")
                             break
 
-                    print(f"完成全頁面截圖，共截取 {screenshot_count} 張圖片")
+                    logger.info(f"完成全頁面截圖，共截取 {screenshot_count} 張圖片")
 
             except Exception as e:
-                print(f"Error: {e}")
+                logger.info(f"Error: {e}")
                 await page.screenshot(path="error.png")
                 raise e
 
@@ -774,7 +776,7 @@ class SyncScrapyPlaywright(BaseScrapy):
         try:
             response = requests.get(target_url, timeout=10)
             if response.status_code != 200:
-                print("无法访问页面，尝试获取代理")
+                logger.info("无法访问页面，尝试获取代理")
                 # 尝试获取可用的代理
                 for attempt in range(len(proxy_manager.proxies)):
                     proxy = proxy_manager.get_next_proxy()
@@ -786,12 +788,12 @@ class SyncScrapyPlaywright(BaseScrapy):
                         }
                         break
                     else:
-                        print(f"代理 {proxy} 不可用，尝试下一个...")
+                        logger.info(f"代理 {proxy} 不可用，尝试下一个...")
 
                 if not proxy_server:
-                    print("没有可用的代理，使用直连")
+                    logger.info("没有可用的代理，使用直连")
         except Exception as e:
-            print(f"连接测试失败: {e}")
+            logger.info(f"连接测试失败: {e}")
 
         # 使用同步 playwright
         with Stealth().use_sync(sync_playwright()) as p:
@@ -858,7 +860,7 @@ class SyncScrapyPlaywright(BaseScrapy):
 
             try:
                 # 设置超时时间
-                print("设置超时时间")
+                logger.info("设置超时时间")
                 page.set_default_timeout(60000)
 
                 base_url = target_url
@@ -869,51 +871,53 @@ class SyncScrapyPlaywright(BaseScrapy):
                     content_type = response.headers.get("content-type", "")
                     if "image" in content_type.lower():
                         image_urls.append(response.url)
-                        print(f"拦截到图片响应: {response.url}")
-                        print(f"Content-Type: {content_type}")
-                        print(f"状态码: {response.status}")
+                        logger.info(f"拦截到图片响应: {response.url}")
+                        logger.info(f"Content-Type: {content_type}")
+                        logger.info(f"状态码: {response.status}")
 
                 page.on("response", handle_response)
 
                 # 访问页面
-                print("访问页面")
+                logger.info("访问页面")
                 response = page.goto(base_url)
-                print(f"访问页面完成，状态: {response.status if response else 'None'}")
+                logger.info(
+                    f"访问页面完成，状态: {response.status if response else 'None'}"
+                )
 
                 # 尝试点击特定按钮（针对某些网站）
                 try:
                     button_selector = "/html/body/div/div[1]/div[3]/div/div/form/div/div/span/span/button"
                     if page.locator(button_selector).count() == 0:
-                        print("没有找到特定按钮，跳过")
+                        logger.info("没有找到特定按钮，跳过")
                     else:
-                        print(f"尝试点击按钮: {button_selector}")
+                        logger.info(f"尝试点击按钮: {button_selector}")
                         page.click(f"xpath={button_selector}")
-                        print("按钮点击成功")
+                        logger.info("按钮点击成功")
                         page.wait_for_timeout(2000)
                 except Exception as e:
-                    print(f"点击按钮失败: {e}")
+                    logger.info(f"点击按钮失败: {e}")
 
                 # 等待初始内容加载
                 page.wait_for_load_state("domcontentloaded")
-                print("DOM 内容已加载")
+                logger.info("DOM 内容已加载")
 
                 # 滚动页面触发懒加载
-                print("滚动页面触发懒加载...")
+                logger.info("滚动页面触发懒加载...")
                 for i in range(10):
                     page.evaluate("window.scrollBy(0, 300)")
                     page.wait_for_timeout(500)
 
                 # 滚动到底部
-                print("滚动到底部")
+                logger.info("滚动到底部")
                 page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
                 page.wait_for_timeout(2000)
 
                 # 额外等待动态内容
-                print("额外等待动态内容")
+                logger.info("额外等待动态内容")
                 page.wait_for_timeout(2000)
 
                 # 获取 HTML
-                print("获取 HTML")
+                logger.info("获取 HTML")
                 html_content = page.content()
 
                 # 提取内容
@@ -940,12 +944,12 @@ class SyncScrapyPlaywright(BaseScrapy):
                         f.write(f"{item['text']}\n")
 
                 # 打印统计信息
-                print(f"总共提取了 {len(content['texts'])} 个文字元素")
-                print(f"总共下载了 {len(content['images'])} 张图片")
+                logger.info(f"总共提取了 {len(content['texts'])} 个文字元素")
+                logger.info(f"总共下载了 {len(content['images'])} 张图片")
 
                 # 如果图片太少，进行全页面截图
                 if content["images"] == [] or len(content["images"]) <= 3:
-                    print("没有下载到足够图片，开始进行全页面截图")
+                    logger.info("没有下载到足够图片，开始进行全页面截图")
 
                     # 滚动到页面顶部
                     page.evaluate("window.scrollTo(0, 0)")
@@ -957,21 +961,22 @@ class SyncScrapyPlaywright(BaseScrapy):
 
                     screenshot_count = 0
                     current_position = 0
+                    uid = uuid.uuid4().hex[:8]
 
                     while current_position < total_height:
                         # 截图
                         screenshot_path = os.path.join(
                             images_downloaded_dir,
-                            f"screenshot_{screenshot_count:03d}.jpg",
+                            f"screenshot_{screenshot_count:03d}_{uid}.jpg",
                         )
                         original_screenshot_path = os.path.join(
                             original_images_downloaded_dir,
-                            f"original_screenshot_{screenshot_count:03d}.jpg",
+                            f"original_screenshot_{screenshot_count:03d}_{uid}.jpg",
                         )
 
                         page.screenshot(path=screenshot_path)
                         page.screenshot(path=original_screenshot_path)
-                        print(f"截图保存至: {screenshot_path}")
+                        logger.info(f"截图保存至: {screenshot_path}")
 
                         # 向下滚动一个视窗高度
                         current_position += viewport_height
@@ -982,13 +987,13 @@ class SyncScrapyPlaywright(BaseScrapy):
 
                         # 防止无限循环
                         if screenshot_count > 30:
-                            print("截图数量超过限制，停止截图")
+                            logger.info("截图数量超过限制，停止截图")
                             break
 
-                    print(f"完成全页面截图，共截取 {screenshot_count} 张图片")
+                    logger.info(f"完成全页面截图，共截取 {screenshot_count} 张图片")
 
             except Exception as e:
-                print(f"Error: {e}")
+                logger.info(f"Error: {e}")
                 page.screenshot(path="error.png")
                 raise e
 

@@ -20,10 +20,10 @@ from dotenv import load_dotenv
 from google import genai
 from google.genai import types
 
+from AutoPPT import logger
 from AutoPPT.scrapy import SyncScrapyPlaywright
-
-from .slide_generator import HTMLGenerator, PPTXGenerator
-from .slide_types import SlideTypeRegistry
+from AutoPPT.slide_generator import HTMLGenerator, PPTXGenerator
+from AutoPPT.slide_types import SlideTypeRegistry
 
 load_dotenv()
 
@@ -71,13 +71,13 @@ class AutoPPT:
         if not self.use_images or not os.path.exists(self.save_image_dir):
             return
 
-        print("\n📸 載入圖片資源...")
+        logger.info("\n📸 載入圖片資源...")
         for index, file in enumerate(sorted(os.listdir(self.save_image_dir))):
             if file.endswith(('.jpg', '.jpeg', '.png')):
                 image_file = self.client.files.upload(
                     file=f"{self.save_image_dir}/{file}"
                 )
-                print(f"   ✓ 上傳圖片 {index + 1}: {file}")
+                logger.info(f"   ✓ 上傳圖片 {index + 1}: {file}")
 
                 image_id = f"img_{index+1:02d}"
                 self.image_files.append(image_file)
@@ -165,7 +165,7 @@ class AutoPPT:
         Returns:
             簡報數據（dict）
         """
-        print("\n🤖 AI 分析內容並生成簡報結構...")
+        logger.info("\n🤖 AI 分析內容並生成簡報結構...")
 
         # 調用 AI
         response = self.client.models.generate_content(
@@ -176,16 +176,16 @@ class AutoPPT:
             contents=contents,
         )
 
-        print("   ✓ AI 分析完成")
-        print(f"   📊 Token 使用：{response.usage_metadata}")
+        logger.info("   ✓ AI 分析完成")
+        logger.info(f"   📊 Token 使用：{response.usage_metadata}")
 
         # 解析結果
         ai_data = json.loads(response.text)
 
-        print(f"\n📋 簡報資訊：")
-        print(f"   標題：{ai_data.get('title', '')}")
-        print(f"   主題：{ai_data.get('topic', '')}")
-        print(f"   幻燈片數量：{len(ai_data.get('slides', []))}")
+        logger.info(f"\n📋 簡報資訊：")
+        logger.info(f"   標題：{ai_data.get('title', '')}")
+        logger.info(f"   主題：{ai_data.get('topic', '')}")
+        logger.info(f"   幻燈片數量：{len(ai_data.get('slides', []))}")
 
         return ai_data
 
@@ -196,28 +196,31 @@ class AutoPPT:
             if os.path.exists(file):
                 uploaded_file = self.client.files.upload(file=file)
             else:
-                print(f"   ❌ 檔案不存在：{file}")
+                logger.info(f"   ❌ 檔案不存在：{file}")
                 continue
             uploaded_files.append(uploaded_file)
-            print(f"   ✓ 已上傳檔案：{file}")
+            logger.info(f"   ✓ 已上傳檔案：{file}")
         return uploaded_files
 
-    def scrape_url(self, url: str) -> None:
+    def scrape_urls(self, urls: List[str]) -> None:
         """爬取 URL"""
-
-        uid = uuid.uuid4()
-        content_file = os.path.join(self.save_content_dir, f"{uid}.txt")
-        self.scrapy.start(
-            target_url=url,
-            extracted_content_file=content_file,
-            images_downloaded_dir=self.save_image_dir,
-        )
-        self.text_content_files.append(content_file)
-        print(f"   ✓ 已爬取 URL：{url} 並保存到 {content_file}")
+        if not urls:
+            return
+        logger.info(f"🌐 開始爬取 {len(urls)} 個 URL...")
+        for url in urls:
+            uid = uuid.uuid4()
+            content_file = os.path.join(self.save_content_dir, f"{uid}.txt")
+            self.scrapy.start(
+                target_url=url,
+                extracted_content_file=content_file,
+                images_downloaded_dir=self.save_image_dir,
+            )
+            self.text_content_files.append(content_file)
+            logger.info(f"   ✓ 已爬取 URL：{url} 並保存到 {content_file}")
 
     def save_html(self, data: Dict, filename: str = None) -> str:
         """保存 HTML 文件"""
-        print("\n🎨 生成 HTML 演示文稿...")
+        logger.info("\n🎨 生成 HTML 演示文稿...")
 
         html_gen = HTMLGenerator(self.image_metadata)
         html_content = html_gen.generate_from_data(data)
@@ -232,9 +235,9 @@ class AutoPPT:
         with open(filename, "w", encoding="utf-8") as f:
             f.write(html_content)
 
-        print(f"   ✓ HTML 已保存：{filename}")
-        print(f"\n🌐 請在瀏覽器中打開：")
-        print(f"   file://{os.path.abspath(filename)}")
+        logger.info(f"   ✓ HTML 已保存：{filename}")
+        logger.info(f"\n🌐 請在瀏覽器中打開：")
+        logger.info(f"   file://{os.path.abspath(filename)}")
 
         return filename
 
@@ -249,14 +252,14 @@ class AutoPPT:
         with open(filename, "w", encoding="utf-8") as f:
             json.dump(data, f, ensure_ascii=False, indent=2)
 
-        print(f"\n💾 數據已保存：{filename}")
-        print(f"   （可用於後續轉換為 PPTX）")
+        logger.info(f"\n💾 數據已保存：{filename}")
+        logger.info(f"   （可用於後續轉換為 PPTX）")
 
         return filename
 
     def save_pptx(self, data: Dict, filename: str = None) -> str:
         """保存 PPTX 文件"""
-        print("\n📊 生成 PPTX 演示文稿...")
+        logger.info("\n📊 生成 PPTX 演示文稿...")
 
         pptx_gen = PPTXGenerator(self.image_metadata)
         prs = pptx_gen.generate_from_data(data)
@@ -270,7 +273,7 @@ class AutoPPT:
 
         prs.save(filename)
 
-        print(f"   ✓ PPTX 已保存：{filename}")
+        logger.info(f"   ✓ PPTX 已保存：{filename}")
 
         return filename
 
@@ -295,9 +298,7 @@ class AutoPPT:
         """
         try:
             # 爬蟲
-            if url_links:
-                for url in url_links:
-                    self.scrape_url(url)
+            self.scrape_urls(url_links)
 
             # 載入圖片
             self.load_images()
@@ -318,22 +319,22 @@ class AutoPPT:
                 self.save_json(data)
                 self.save_pptx(data)
 
-            print("\n" + "=" * 60)
-            print("✅ 生成完成！")
-            print("💡 提示：")
-            print("   - 在瀏覽器中預覽 HTML")
-            print("   - 使用 PowerPoint 打開 PPTX 文件")
-            print("   - JSON 數據可用於後續處理")
-            print("=" * 60)
+            logger.info("\n" + "=" * 60)
+            logger.info("✅ 生成完成！")
+            logger.info("💡 提示：")
+            logger.info("   - 在瀏覽器中預覽 HTML")
+            logger.info("   - 使用 PowerPoint 打開 PPTX 文件")
+            logger.info("   - JSON 數據可用於後續處理")
+            logger.info("=" * 60)
 
             return data
 
         except json.JSONDecodeError as e:
-            print(f"\n❌ JSON 解析錯誤：{e}")
+            logger.info(f"\n❌ JSON 解析錯誤：{e}")
             raise
         except Exception as e:
-            print(f"\n❌ 發生錯誤：{e}")
+            logger.info(f"\n❌ 發生錯誤：{e}")
             import traceback
 
-            traceback.print_exc()
+            traceback.logger.info_exc()
             raise

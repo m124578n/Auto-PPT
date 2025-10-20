@@ -20,6 +20,8 @@ from pptx.presentation import Presentation
 from pptx.slide import Slide
 from pptx.util import Inches, Pt
 
+from AutoPPT import logger
+
 
 # ==================== Registry ====================
 class SlideTypeRegistry:
@@ -65,7 +67,7 @@ class SlideTypeRegistry:
 # ==================== 抽象基類 ====================
 class SlideType(ABC):
     """Slide 類型抽象基類"""
-    
+
     def __init__(self, data: Dict[str, Any], context: Optional[Dict] = None):
         """
         Args:
@@ -74,17 +76,17 @@ class SlideType(ABC):
         """
         self.data = data
         self.context = context or {}
-    
+
     @abstractmethod
     def generate_html(self) -> str:
         """生成 HTML 片段"""
         pass
-    
+
     @abstractmethod
     def generate_pptx(self, prs: Presentation) -> Slide:
         """生成 PPTX slide"""
         pass
-    
+
     @classmethod
     def get_json_example(cls) -> Dict[str, Any]:
         """
@@ -95,7 +97,7 @@ class SlideType(ABC):
             "slide_type": "unknown",
             "description": "請在子類中實現 get_json_example()"
         }
-    
+
     @classmethod
     def get_description(cls) -> str:
         """
@@ -103,7 +105,7 @@ class SlideType(ABC):
         子類應該重寫此方法以提供具體說明
         """
         return "未定義說明"
-    
+
     # ========== 輔助方法 ==========
     def _get_image_path(self, image_id: str) -> Optional[str]:
         """獲取圖片路徑"""
@@ -111,29 +113,29 @@ class SlideType(ABC):
         if image_id in image_metadata:
             return image_metadata[image_id]['path']
         return None
-    
+
     def _calculate_image_size(self, image_path: str, max_width: float, max_height: float) -> tuple:
         """計算保持寬高比的圖片尺寸（英寸）"""
         try:
             with Image.open(image_path) as img:
                 img_width, img_height = img.size
                 aspect_ratio = img_width / img_height
-                
+
                 # 基於寬度
                 width_based = max_width
                 height_based = max_width / aspect_ratio
-                
+
                 # 基於高度
                 height_limit = max_height
                 width_limit = max_height * aspect_ratio
-                
+
                 # 選擇不超出邊界的最大尺寸
                 if height_based <= max_height:
                     return (width_based, height_based)
                 else:
                     return (width_limit, height_limit)
         except Exception as e:
-            print(f"   ⚠️ 無法讀取圖片尺寸：{e}")
+            logger.info(f"   ⚠️ 無法讀取圖片尺寸：{e}")
             return (max_width, max_height)
 
 
@@ -492,7 +494,7 @@ class TextContentSlide(SlideType):
 @SlideTypeRegistry.register('image_with_text')
 class ImageTextSlide(SlideType):
     """圖文混合頁"""
-    
+
     @classmethod
     def get_json_example(cls) -> Dict[str, Any]:
         return {
@@ -502,20 +504,20 @@ class ImageTextSlide(SlideType):
             "text": "說明文字",
             "layout": "horizontal"
         }
-    
+
     @classmethod
     def get_description(cls) -> str:
         return "圖文混合頁（layout 可選 'horizontal' 左圖右文 或 'vertical' 上圖下文）"
-    
+
     def generate_html(self) -> str:
         title = self.data.get('title', '')
         image_id = self.data.get('image_id', '')
         text = self.data.get('text', '')
         layout = self.data.get('layout', 'horizontal')
-        
+
         img_src = self._get_image_path(image_id) or ""
         layout_class = "layout-vertical" if layout == "vertical" else "layout-horizontal"
-        
+
         return f"""
         <div class="slide slide-content">
             <div class="slide-content">
@@ -531,10 +533,10 @@ class ImageTextSlide(SlideType):
             </div>
         </div>
         """
-    
+
     def generate_pptx(self, prs: Presentation) -> Slide:
         slide = prs.slides.add_slide(prs.slide_layouts[6])
-        
+
         # 標題
         title = self.data.get('title', '')
         if title:
@@ -543,7 +545,7 @@ class ImageTextSlide(SlideType):
             )
             title_frame = title_box.text_frame
             title_frame.word_wrap = True
-            
+
             # 處理換行符號，為每一行創建單獨的段落
             lines = title.split('\n')
             for i, line in enumerate(lines):
@@ -551,7 +553,7 @@ class ImageTextSlide(SlideType):
                     p = title_frame.paragraphs[0]
                 else:
                     p = title_frame.add_paragraph()
-                
+
                 p.text = line
                 p.alignment = PP_ALIGN.CENTER
                 # 根據標題長度調整字體大小
@@ -561,15 +563,15 @@ class ImageTextSlide(SlideType):
                     p.font.size = Pt(36)
                 p.font.bold = True
                 p.font.color.rgb = RGBColor(44, 62, 80)  # #2c3e50
-        
+
         # 檢查布局類型
         layout = self.data.get('layout', 'horizontal')
         is_horizontal = layout == 'horizontal'
-        
+
         # 提取圖片
         image_id = self.data.get('image_id', '')
         image_path = self._get_image_path(image_id)
-        
+
         if image_path and os.path.exists(image_path):
             try:
                 if is_horizontal:
@@ -592,19 +594,21 @@ class ImageTextSlide(SlideType):
                     # 圖片水平居中對齊
                     left = Inches(1.0 + (max_width - img_width) / 2)
                     top = Inches(2.5)  # 往下移，讓整體更平衡
-                
+
                 slide.shapes.add_picture(
                     image_path, left, top,
                     width=Inches(img_width),
                     height=Inches(img_height)
                 )
-                print(f"   ✓ 添加圖片：{os.path.basename(image_path)} ({img_width:.2f}\" × {img_height:.2f}\")")
+                logger.info(
+                    f'   ✓ 添加圖片：{os.path.basename(image_path)} ({img_width:.2f}" × {img_height:.2f}")'
+                )
             except Exception as e:
-                print(f"   ⚠️ 圖片添加失敗：{e}")
+                logger.info(f"   ⚠️ 圖片添加失敗：{e}")
         else:
             if image_id:
-                print(f"   ⚠️ 圖片不存在：{image_id}")
-        
+                logger.info(f"   ⚠️ 圖片不存在：{image_id}")
+
         # 提取文字
         text_content = self.data.get('text', '')
         if text_content:
@@ -635,21 +639,21 @@ class ImageTextSlide(SlideType):
                 else:
                     font_size = 19
                     line_spacing = 1.5
-            
+
             text_frame = text_box.text_frame
             text_frame.text = text_content
             text_frame.word_wrap = True
             text_frame.paragraphs[0].font.size = Pt(font_size)
             text_frame.paragraphs[0].font.color.rgb = RGBColor(44, 62, 80)  # #2c3e50
             text_frame.paragraphs[0].line_spacing = line_spacing
-        
+
         return slide
 
 
 @SlideTypeRegistry.register('full_image')
 class FullImageSlide(SlideType):
     """大圖展示頁"""
-    
+
     @classmethod
     def get_json_example(cls) -> Dict[str, Any]:
         return {
@@ -658,18 +662,18 @@ class FullImageSlide(SlideType):
             "image_id": "img_02",
             "caption": "圖片說明"
         }
-    
+
     @classmethod
     def get_description(cls) -> str:
         return "大圖展示頁（大幅圖片配簡短說明）"
-    
+
     def generate_html(self) -> str:
         title = self.data.get('title', '')
         image_id = self.data.get('image_id', '')
         caption = self.data.get('caption', '')
-        
+
         img_src = self._get_image_path(image_id) or ""
-        
+
         return f"""
         <div class="slide slide-content">
             <div class="slide-content">
@@ -681,10 +685,10 @@ class FullImageSlide(SlideType):
             </div>
         </div>
         """
-    
+
     def generate_pptx(self, prs: Presentation) -> Slide:
         slide = prs.slides.add_slide(prs.slide_layouts[6])
-        
+
         # 標題
         title = self.data.get('title', '')
         if title:
@@ -693,7 +697,7 @@ class FullImageSlide(SlideType):
             )
             title_frame = title_box.text_frame
             title_frame.word_wrap = True
-            
+
             # 處理換行符號，為每一行創建單獨的段落
             lines = title.split('\n')
             for i, line in enumerate(lines):
@@ -701,7 +705,7 @@ class FullImageSlide(SlideType):
                     p = title_frame.paragraphs[0]
                 else:
                     p = title_frame.add_paragraph()
-                
+
                 p.text = line
                 p.alignment = PP_ALIGN.CENTER
                 # 根據標題長度調整字體大小
@@ -711,11 +715,11 @@ class FullImageSlide(SlideType):
                     p.font.size = Pt(36)
                 p.font.bold = True
                 p.font.color.rgb = RGBColor(44, 62, 80)  # #2c3e50
-        
+
         # 提取圖片
         image_id = self.data.get('image_id', '')
         image_path = self._get_image_path(image_id)
-        
+
         if image_path and os.path.exists(image_path):
             try:
                 # 大圖展示 - HTML: max-width 90%, max-height 70%
@@ -728,19 +732,21 @@ class FullImageSlide(SlideType):
                 # 居中對齊圖片
                 left = Inches(1.25 + (max_width - img_width) / 2)
                 top = Inches(1.9 + (max_height - img_height) / 2)
-                
+
                 slide.shapes.add_picture(
                     image_path, left, top,
                     width=Inches(img_width),
                     height=Inches(img_height)
                 )
-                print(f"   ✓ 添加大圖：{os.path.basename(image_path)} ({img_width:.2f}\" × {img_height:.2f}\")")
+                logger.info(
+                    f'   ✓ 添加大圖：{os.path.basename(image_path)} ({img_width:.2f}" × {img_height:.2f}")'
+                )
             except Exception as e:
-                print(f"   ⚠️ 圖片添加失敗：{e}")
+                logger.info(f"   ⚠️ 圖片添加失敗：{e}")
         else:
             if image_id:
-                print(f"   ⚠️ 圖片不存在：{image_id}")
-        
+                logger.info(f"   ⚠️ 圖片不存在：{image_id}")
+
         # 提取圖片說明
         caption = self.data.get('caption', '')
         if caption:
@@ -749,7 +755,7 @@ class FullImageSlide(SlideType):
             )
             caption_frame = caption_box.text_frame
             caption_frame.word_wrap = True
-            
+
             # 處理換行符號，為每一行創建單獨的段落
             lines = caption.split('\n')
             for i, line in enumerate(lines):
@@ -757,7 +763,7 @@ class FullImageSlide(SlideType):
                     p = caption_frame.paragraphs[0]
                 else:
                     p = caption_frame.add_paragraph()
-                
+
                 p.text = line
                 p.alignment = PP_ALIGN.CENTER
                 # 根據說明文字長度調整字體大小
@@ -766,7 +772,7 @@ class FullImageSlide(SlideType):
                 else:
                     p.font.size = Pt(16)
                 p.font.color.rgb = RGBColor(127, 140, 141)  # #7f8c8d
-        
+
         return slide
 
 
