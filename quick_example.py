@@ -28,7 +28,7 @@ CONTENT = """
 """
 
 def main():
-    print("🎨 AutoPPT 快速示例\n")
+    print("🎨 AutoPPT 快速示例")
     print("=" * 60)
 
     # 初始化 AutoPPT
@@ -44,17 +44,17 @@ def main():
         save_files=True  # 自動保存所有格式
     )
 
-    print("\n✅ 成功生成：")
+    print("✅ 成功生成：")
     print(
         f"   - output/{auto_ppt.random_filename_prefix}_{data['topic']}_presentation.html"
     )
     print(f"   - output/{auto_ppt.random_filename_prefix}_{data['topic']}_data.json")
     print(f"   - output/{auto_ppt.random_filename_prefix}_{data['topic']}.pptx")
-    print("\n💡 使用說明：")
+    print("💡 使用說明：")
     print("   1. 在瀏覽器中打開 HTML 預覽")
     print("   2. 使用 PowerPoint 打開 PPTX 文件")
     print("   3. JSON 可用於後續處理")
-    print(f"\n📂 所有文件已保存到 {auto_ppt.save_dir}/ 目錄")
+    print(f"📂 所有文件已保存到 {auto_ppt.save_dir}/ 目錄")
     print("=" * 60)
 
 if __name__ == "__main__":

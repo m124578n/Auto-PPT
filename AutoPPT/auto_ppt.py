@@ -20,10 +20,13 @@ from dotenv import load_dotenv
 from google import genai
 from google.genai import types
 
-from AutoPPT import logger
 from AutoPPT.scrapy import SyncScrapyPlaywright
 from AutoPPT.slide_generator import HTMLGenerator, PPTXGenerator
-from AutoPPT.slide_types import SlideTypeRegistry
+from AutoPPT.slide_types.slide_registry import SlideTypeRegistry
+from AutoPPT.utils.logger import get_logger
+
+# 获取日志器
+logger = get_logger()
 
 load_dotenv()
 
@@ -71,7 +74,7 @@ class AutoPPT:
         if not self.use_images or not os.path.exists(self.save_image_dir):
             return
 
-        logger.info("\n📸 載入圖片資源...")
+        logger.info("📸 載入圖片資源...")
         for index, file in enumerate(sorted(os.listdir(self.save_image_dir))):
             if file.endswith(('.jpg', '.jpeg', '.png')):
                 image_file = self.client.files.upload(
@@ -165,7 +168,7 @@ class AutoPPT:
         Returns:
             簡報數據（dict）
         """
-        logger.info("\n🤖 AI 分析內容並生成簡報結構...")
+        logger.info("🤖 AI 分析內容並生成簡報結構...")
 
         # 調用 AI
         response = self.client.models.generate_content(
@@ -182,7 +185,7 @@ class AutoPPT:
         # 解析結果
         ai_data = json.loads(response.text)
 
-        logger.info(f"\n📋 簡報資訊：")
+        logger.info(f"   📋 簡報資訊：")
         logger.info(f"   標題：{ai_data.get('title', '')}")
         logger.info(f"   主題：{ai_data.get('topic', '')}")
         logger.info(f"   幻燈片數量：{len(ai_data.get('slides', []))}")
@@ -220,7 +223,7 @@ class AutoPPT:
 
     def save_html(self, data: Dict, filename: str = None) -> str:
         """保存 HTML 文件"""
-        logger.info("\n🎨 生成 HTML 演示文稿...")
+        logger.info("🎨 生成 HTML 演示文稿...")
 
         html_gen = HTMLGenerator(self.image_metadata)
         html_content = html_gen.generate_from_data(data)
@@ -236,7 +239,7 @@ class AutoPPT:
             f.write(html_content)
 
         logger.info(f"   ✓ HTML 已保存：{filename}")
-        logger.info(f"\n🌐 請在瀏覽器中打開：")
+        logger.info(f"   🌐 請在瀏覽器中打開：")
         logger.info(f"   file://{os.path.abspath(filename)}")
 
         return filename
@@ -252,14 +255,14 @@ class AutoPPT:
         with open(filename, "w", encoding="utf-8") as f:
             json.dump(data, f, ensure_ascii=False, indent=2)
 
-        logger.info(f"\n💾 數據已保存：{filename}")
+        logger.info(f"   💾 數據已保存：{filename}")
         logger.info(f"   （可用於後續轉換為 PPTX）")
 
         return filename
 
     def save_pptx(self, data: Dict, filename: str = None) -> str:
         """保存 PPTX 文件"""
-        logger.info("\n📊 生成 PPTX 演示文稿...")
+        logger.info("📊 生成 PPTX 演示文稿...")
 
         pptx_gen = PPTXGenerator(self.image_metadata)
         prs = pptx_gen.generate_from_data(data)
@@ -319,7 +322,7 @@ class AutoPPT:
                 self.save_json(data)
                 self.save_pptx(data)
 
-            logger.info("\n" + "=" * 60)
+            logger.info("=" * 60)
             logger.info("✅ 生成完成！")
             logger.info("💡 提示：")
             logger.info("   - 在瀏覽器中預覽 HTML")
@@ -330,11 +333,11 @@ class AutoPPT:
             return data
 
         except json.JSONDecodeError as e:
-            logger.info(f"\n❌ JSON 解析錯誤：{e}")
+            logger.error(f"❌ JSON 解析錯誤：{e}")
             raise
         except Exception as e:
-            logger.info(f"\n❌ 發生錯誤：{e}")
+            logger.error(f"❌ 發生錯誤：{e}")
             import traceback
 
-            traceback.logger.info_exc()
+            logger.error(f"異常詳情: {traceback.format_exc()}")
             raise

@@ -20,8 +20,11 @@ from playwright.async_api import async_playwright
 from playwright.sync_api import sync_playwright
 from playwright_stealth import Stealth
 
-from AutoPPT import logger
 from AutoPPT.scrapy.base_scrapy import BaseScrapy
+from AutoPPT.utils.logger import get_logger
+
+# 获取日志器
+logger = get_logger()
 
 
 class SimpleProxyManager:

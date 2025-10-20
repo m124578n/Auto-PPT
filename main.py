@@ -4,9 +4,8 @@ import tempfile
 
 from dotenv import load_dotenv
 
-from AutoPPT import AutoPPT
+from AutoPPT import AutoPPT, SlideTypeRegistry
 from AutoPPT.scrapy import AsyncScrapyPlaywright
-from AutoPPT.slide_types import SlideTypeRegistry
 
 load_dotenv()
 
@@ -85,5 +84,5 @@ def scrapy_and_generate():
 
 
 if __name__ == "__main__":
-    # main()
-    scrapy_and_generate()
+    main()
+    # scrapy_and_generate()

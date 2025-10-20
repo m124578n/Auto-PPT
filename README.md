@@ -529,7 +529,7 @@ topics = ["產品介紹", "市場分析", "財務報告"]
 
 for topic in topics:
     data = auto_ppt.generate(
-        text_content=f"{topic}\n\n相關內容...",
+        text_content=f"{topic} 相關內容...",
         save_files=True
     )
     print(f"✅ {topic} 生成完成")

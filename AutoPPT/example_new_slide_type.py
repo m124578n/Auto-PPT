@@ -10,7 +10,7 @@ from pptx.presentation import Presentation
 from pptx.slide import Slide
 from pptx.util import Inches, Pt
 
-from slide_types import SlideType, SlideTypeRegistry
+from AutoPPT.slide_types.slide_types import SlideType, SlideTypeRegistry
 
 
 # ==================== 範例 1: 兩欄文字對比頁 ====================
@@ -281,11 +281,11 @@ def test_new_slide_types():
     import json
 
     from slide_generator import HTMLGenerator, PPTXGenerator
-    
+
     print("=" * 60)
     print("測試新增的 Slide 類型")
     print("=" * 60)
-    
+
     # 測試數據
     test_data = {
         'title': '新 Slide 類型示範',
@@ -329,40 +329,40 @@ def test_new_slide_types():
             }
         ]
     }
-    
+
     # 顯示已註冊的類型
-    print(f"\n已註冊的 Slide 類型：{SlideTypeRegistry.all_types()}")
+    print(f"已註冊的 Slide 類型：{SlideTypeRegistry.all_types()}")
     print(f"✓ 成功註冊了 {len(SlideTypeRegistry.all_types())} 種類型")
-    
+
     # 生成 HTML
-    print("\n生成 HTML...")
+    print("生成 HTML...")
     html_gen = HTMLGenerator()
     html_content = html_gen.generate_from_data(test_data)
-    
+
     html_file = 'example_new_slide_types.html'
     with open(html_file, 'w', encoding='utf-8') as f:
         f.write(html_content)
     print(f"✓ HTML 已保存：{html_file}")
-    
+
     # 生成 PPTX
-    print("\n生成 PPTX...")
+    print("生成 PPTX...")
     pptx_gen = PPTXGenerator()
     prs = pptx_gen.generate_from_data(test_data)
-    
+
     pptx_file = 'example_new_slide_types.pptx'
     pptx_gen.save(pptx_file)
     print(f"✓ PPTX 已保存：{pptx_file}")
-    
+
     # 保存 JSON
     json_file = 'example_new_slide_types_data.json'
     with open(json_file, 'w', encoding='utf-8') as f:
         json.dump(test_data, f, ensure_ascii=False, indent=2)
     print(f"✓ JSON 已保存：{json_file}")
-    
-    print("\n" + "=" * 60)
+
+    print("=" * 60)
     print("✅ 測試完成！")
     print("=" * 60)
-    print("\n💡 重點：")
+    print("💡 重點：")
     print("  - 只需添加新類並註冊，不需修改其他代碼")
     print("  - HTML 和 PPTX 生成邏輯集中在一個類中")
     print("  - 自動整合到現有工作流程")
@@ -371,4 +371,3 @@ def test_new_slide_types():
 
 if __name__ == "__main__":
     test_new_slide_types()
-

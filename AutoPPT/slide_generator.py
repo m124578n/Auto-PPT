@@ -9,8 +9,11 @@ from typing import Any, Dict, List
 from pptx import Presentation
 from pptx.util import Inches
 
-from AutoPPT import logger
-from AutoPPT.slide_types import SlideTypeRegistry
+from AutoPPT.slide_types.slide_types import SlideTypeRegistry
+from AutoPPT.utils.logger import get_logger
+
+# 获取日志器
+logger = get_logger(name="SlideGenerator")
 
 
 # ==================== HTML 生成器 ====================
@@ -482,7 +485,7 @@ class PPTXGenerator:
             Presentation 對象
         """
         for i, slide_data in enumerate(ai_data.get('slides', []), 1):
-            logger.info(f"\n📝 處理第 {i} 張幻燈片...")
+            logger.info(f"📝 處理第 {i} 張幻燈片...")
 
             try:
                 self._create_slide_pptx(slide_data)
@@ -512,7 +515,7 @@ class PPTXGenerator:
     def save(self, output_path: str):
         """保存 PPTX 文件"""
         self.prs.save(output_path)
-        logger.info(f"\n✅ PPTX 已保存：{output_path}")
+        logger.info(f"   ✅ PPTX 已保存：{output_path}")
 
 
 # ==================== HTML 轉 PPTX 解析器 ====================
@@ -530,7 +533,7 @@ class HTMLToPPTXParser:
         """
         from bs4 import BeautifulSoup
 
-        logger.info(f"\n📂 讀取 HTML 文件：{html_file}")
+        logger.info(f"📂 讀取 HTML 文件：{html_file}")
 
         with open(html_file, "r", encoding="utf-8") as f:
             html_content = f.read()
@@ -546,7 +549,7 @@ class HTMLToPPTXParser:
         logger.info(f"   ✓ 找到 {len(slides)} 張幻燈片")
 
         for i, slide_elem in enumerate(slides, 1):
-            logger.info(f"\n📝 處理第 {i} 張幻燈片...")
+            logger.info(f"📝 處理第 {i} 張幻燈片...")
 
             try:
                 # 判斷 slide 類型

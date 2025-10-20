@@ -389,7 +389,7 @@ class AppLogger:
                     return func(*args, **kwargs)
                 except Exception as e:
                     self.logger.error(f"函数 {func.__name__} 发生异常: {e}")
-                    self.logger.debug(f"异常详情:\n{traceback.format_exc()}")
+                    self.logger.debug(f"异常详情: {traceback.format_exc()}")
                     if reraise:
                         raise
                     return None

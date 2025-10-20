@@ -11,7 +11,7 @@ import json
 import os
 
 from slide_generator import HTMLGenerator, PPTXGenerator
-from slide_types import SlideTypeRegistry
+from AutoPPT.slide_types.slide_types import SlideTypeRegistry
 
 
 def test_registry():
