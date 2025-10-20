@@ -15,6 +15,7 @@ app.log.*
 # C extensions
 *.so
 output/
+logs/
 
 # Distribution / packaging
 .Python
