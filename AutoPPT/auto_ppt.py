@@ -22,7 +22,7 @@ from google.genai import types
 
 from AutoPPT.scrapy import SyncScrapyPlaywright
 from AutoPPT.slide_generator import HTMLGenerator, PPTXGenerator
-from AutoPPT.slide_types.slide_registry import SlideTypeRegistry
+from AutoPPT.template_engine import PPTXTemplate
 from AutoPPT.utils.logger import get_logger
 
 # 获取日志器
@@ -44,6 +44,7 @@ class AutoPPT:
         use_images: bool = False,
         output_dir: str = "temp_dir",
         scrapy: SyncScrapyPlaywright = None,
+        template_path: str = None,
     ):
         """
         初始化 AutoPPT
@@ -51,6 +52,9 @@ class AutoPPT:
         Args:
             api_key: Google Gemini API Key
             use_images: 是否使用圖片資源
+            output_dir: 輸出目錄
+            scrapy: 爬蟲實例
+            template_path: 模板 JSON 文件路徑（可選）
         """
         self.client = genai.Client(api_key=api_key)
         self.use_images = use_images
@@ -68,6 +72,10 @@ class AutoPPT:
             os.makedirs(self.save_image_dir)
         self.random_filename_prefix = get_random_filename_prefix()
         self.scrapy = scrapy or SyncScrapyPlaywright()
+
+        # 加載模板
+        self.template = PPTXTemplate(template_path)
+        logger.info(f"   🎨 模板：{self.template}")
 
     def load_images(self):
         """載入圖片資源"""
@@ -92,68 +100,10 @@ class AutoPPT:
                 }
 
     def generate_prompt(self, prompt: str) -> str:
-        """生成 AI Prompt"""
-        # 圖片列表信息
-        image_list_info = (
-            "\n".join(
-                [
-                    f"- {img_id}: {data['filename']}"
-                    for img_id, data in self.image_metadata.items()
-                ]
-            )
-            if self.image_metadata
-            else "無圖片資源（純文字簡報）"
+        """生成 AI Prompt（使用模板引擎）"""
+        return self.template.generate_ai_prompt(
+            image_metadata=self.image_metadata, user_prompt=prompt
         )
-
-        # 動態生成 JSON 示例
-        json_examples = SlideTypeRegistry.get_all_json_examples()
-        slides_examples_str = ",\n    ".join(
-            [
-                json.dumps(example, ensure_ascii=False, indent=2).replace(
-                    "\n", "\n    "
-                )
-                for example in json_examples
-            ]
-        )
-
-        # 動態生成類型說明
-        descriptions = SlideTypeRegistry.get_all_descriptions()
-        descriptions_str = "\n".join(
-            [
-                f"- {slide_type}: {description}"
-                for slide_type, description in descriptions.items()
-            ]
-        )
-
-        return f"""請分析以下內容，生成一個結構化的演示文稿（適合 HTML 格式）。
-
-**使用者輸入**
-{prompt}
-
-**文字內容**：
-請讀取我上傳的檔案，當作其內容。
-
-**可用圖片**：
-{image_list_info}
-
-**輸出 JSON 格式**：
-{{
-  "title": "簡報標題",
-  "topic": "簡報主題",
-  "slides": [
-    {slides_examples_str}
-  ]
-}}
-
-**可用的 slide 類型說明**：
-{descriptions_str}
-
-**要求**：
-1. 自動分析內容，識別2-4個主題
-2. 每個主題有章節分隔頁
-3. 合理安排圖片（如有）
-4. 總共10-15張幻燈片
-"""
 
     def generate_presentation(
         self, contents: List[str], model: str = "gemini-2.5-flash"
@@ -168,6 +118,8 @@ class AutoPPT:
         Returns:
             簡報數據（dict）
         """
+        # 列出template的slide_types
+        logger.info(f"🤖 模板：{self.template.slide_types.keys()}")
         logger.info("🤖 AI 分析內容並生成簡報結構...")
 
         # 調用 AI
@@ -261,10 +213,10 @@ class AutoPPT:
         return filename
 
     def save_pptx(self, data: Dict, filename: str = None) -> str:
-        """保存 PPTX 文件"""
+        """保存 PPTX 文件（使用模板引擎）"""
         logger.info("📊 生成 PPTX 演示文稿...")
 
-        pptx_gen = PPTXGenerator(self.image_metadata)
+        pptx_gen = PPTXGenerator(self.image_metadata, template=self.template)
         prs = pptx_gen.generate_from_data(data)
 
         # 生成文件名

@@ -9,7 +9,6 @@ from typing import Any, Dict, List
 from pptx import Presentation
 from pptx.util import Inches
 
-from AutoPPT.slide_types.slide_types import SlideTypeRegistry
 from AutoPPT.utils.logger import get_logger
 
 # 获取日志器
@@ -46,19 +45,17 @@ class HTMLGenerator:
         )
 
     def _create_slide_html(self, slide_data: Dict) -> str:
-        """根據類型創建單個 slide 的 HTML"""
+        """根據類型創建單個 slide 的 HTML（簡化版）"""
         slide_type = slide_data.get('slide_type', 'text_content')
+        title = slide_data.get("title", slide_data.get("section_title", ""))
 
-        # 從 Registry 獲取對應的 slide 類
-        slide_class = SlideTypeRegistry.get(slide_type)
-
-        if not slide_class:
-            logger.info(f"⚠️ 未知的 slide 類型：{slide_type}，使用預設類型")
-            slide_class = SlideTypeRegistry.get('text_content')
-
-        # 創建 slide 實例並生成 HTML
-        slide = slide_class(slide_data, self.context)
-        return slide.generate_html()
+        # 簡單的 HTML 生成（後續可擴展）
+        return f"""
+        <div class="slide">
+            <h2>{title}</h2>
+            <p>Slide Type: {slide_type}</p>
+        </div>
+        """
 
     def _build_full_html(self, title: str, slides_html: List[str]) -> str:
         """構建完整的 HTML 文檔（包含 CSS 和 JS）"""
@@ -466,51 +463,57 @@ class HTMLGenerator:
 
 # ==================== PPTX 生成器 ====================
 class PPTXGenerator:
-    """PPTX 演示文稿生成器"""
+    """PPTX 演示文稿生成器（使用模板引擎）"""
 
-    def __init__(self, image_metadata: Dict = None):
-        self.prs = Presentation()
-        self.prs.slide_width = Inches(10)
-        self.prs.slide_height = Inches(7.5)
+    def __init__(self, image_metadata: Dict = None, template=None):
+        """
+        初始化 PPTX 生成器
+
+        Args:
+            image_metadata: 圖片元數據
+            template: PPTXTemplate 模板對象
+        """
+        self.template = template
         self.image_metadata = image_metadata or {}
-        self.context = {'image_metadata': self.image_metadata}
+
+        # 創建 Presentation
+        self.prs = Presentation()
+
+        # 從模板獲取尺寸配置
+        if self.template:
+            config = self.template.get_presentation_config()
+            self.prs.slide_width = Inches(config["slide_width"])
+            self.prs.slide_height = Inches(config["slide_height"])
+        else:
+            self.prs.slide_width = Inches(10)
+            self.prs.slide_height = Inches(7.5)
 
     def generate_from_data(self, ai_data: Dict) -> Presentation:
-        """從 AI JSON 數據生成 PPTX
-        
+        """從 AI JSON 數據生成 PPTX（使用模板引擎）
+
         Args:
             ai_data: AI 生成的結構化數據
-            
+
         Returns:
             Presentation 對象
         """
+        if not self.template:
+            logger.error("❌ 沒有模板，無法生成 PPTX")
+            return self.prs
+
         for i, slide_data in enumerate(ai_data.get('slides', []), 1):
             logger.info(f"📝 處理第 {i} 張幻燈片...")
 
             try:
-                self._create_slide_pptx(slide_data)
+                # 使用模板引擎創建 slide
+                self.template.create_slide(self.prs, slide_data, self.image_metadata)
                 logger.info(f"   ✓ 創建成功")
             except Exception as e:
-                logger.info(f"   ❌ 創建失敗：{e}")
+                logger.error(f"   ❌ 創建失敗：{e}")
                 import traceback
-                traceback.logger.info_exc()
+                traceback.print_exc()
 
         return self.prs
-
-    def _create_slide_pptx(self, slide_data: Dict):
-        """根據類型創建單個 PPTX slide"""
-        slide_type = slide_data.get('slide_type', 'text_content')
-
-        # 從 Registry 獲取對應的 slide 類
-        slide_class = SlideTypeRegistry.get(slide_type)
-
-        if not slide_class:
-            logger.info(f"⚠️ 未知的 slide 類型：{slide_type}，使用預設類型")
-            slide_class = SlideTypeRegistry.get('text_content')
-
-        # 創建 slide 實例並生成 PPTX
-        slide = slide_class(slide_data, self.context)
-        slide.generate_pptx(self.prs)
 
     def save(self, output_path: str):
         """保存 PPTX 文件"""

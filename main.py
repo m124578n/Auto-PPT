@@ -3,7 +3,7 @@ import tempfile
 
 from dotenv import load_dotenv
 
-from AutoPPT import AutoPPT, SlideTypeRegistry
+from AutoPPT import AutoPPT
 
 load_dotenv()
 
@@ -52,8 +52,6 @@ def main():
     """使用 AutoPPT 類的簡化主程序"""
     print("🎨 AI 驅動的 HTML → PPTX 生成器（重構版）")
     print("=" * 60)
-    print(f"📊 已註冊的 Slide 類型：{', '.join(SlideTypeRegistry.all_types())}")
-    print("=" * 60)
 
     # 初始化 AutoPPT
     tempfile_dir = tempfile.mkdtemp(dir="temp_dir")
@@ -76,11 +74,11 @@ def scrapy_and_generate():
         save_files=True,
         url_links=[
             "https://travel.liontravel.com/detail?NormGroupID=8a2fd4bf-0b87-4e5c-9c6b-3a38d81362af&GroupID=25XMD28CX-T&Platform=APP",
-            "https://travel.liontravel.com/detail?NormGroupID=a854db3d-5df3-4bff-9dd4-f022f0d6d565&GroupID=25XMD29EK5-T&Platform=APP",
+            # "https://travel.liontravel.com/detail?NormGroupID=a854db3d-5df3-4bff-9dd4-f022f0d6d565&GroupID=25XMD29EK5-T&Platform=APP",
         ],
     )
 
 
 if __name__ == "__main__":
-    main()
-    # scrapy_and_generate()
+    # main()
+    scrapy_and_generate()

@@ -1,0 +1,45 @@
+{
+  "template_info": {
+    "name": "我的自定義模板",
+    "version": "1.0.0",
+    "description": "這是一個自定義的簡報模板"
+  },
+  "slide_types": [
+    {
+      "type_id": "opening",
+      "name": "開場頁",
+      "description": "簡報開始",
+      "llm_instruction": "用於簡報開始頁",
+      "json_schema": {
+        "slide_type": "opening",
+        "title": "標題",
+        "subtitle": "副標題"
+      },
+      "pptx_layout": {
+        "layout_index": 6,
+        "background": {
+          "type": "solid",
+          "color": "#4A90E2"
+        },
+        "elements": [
+          {
+            "type": "textbox",
+            "name": "title",
+            "position": {
+              "left": 1.0,
+              "top": 3.0,
+              "width": 8.0,
+              "height": 1.5
+            },
+            "style": {
+              "font_size": 60,
+              "font_bold": true,
+              "font_color": "#FFFFFF",
+              "alignment": "center"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

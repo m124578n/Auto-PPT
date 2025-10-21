@@ -1,0 +1,302 @@
+{
+  "template_info": {
+    "name": "默認簡報模板",
+    "version": "1.0.0",
+    "description": "適用於一般商務簡報的標準模板",
+    "author": "智造業 john",
+    "slide_width": 10.0,
+    "slide_height": 7.5
+  },
+  "slide_types": [
+    {
+      "type_id": "opening",
+      "name": "開場頁",
+      "description": "簡報的封面頁，包含主標題和副標題",
+      "llm_instruction": "用於簡報開始，展示主題和講者信息。應該簡潔有力。",
+      "json_schema": {
+        "slide_type": "opening",
+        "title": "主標題（必填）",
+        "subtitle": "副標題（選填）"
+      },
+      "pptx_layout": {
+        "layout_index": 6,
+        "background": {
+          "type": "gradient",
+          "color_start": "#667eea",
+          "color_end": "#764ba2"
+        },
+        "elements": [
+          {
+            "type": "textbox",
+            "name": "title",
+            "position": {"left": 0.5, "top": 2.5, "width": 9.0, "height": 1.5},
+            "style": {
+              "font_size": 58,
+              "font_bold": true,
+              "font_color": "#FFFFFF",
+              "alignment": "center"
+            }
+          },
+          {
+            "type": "textbox",
+            "name": "subtitle",
+            "position": {"left": 0.5, "top": 4.5, "width": 9.0, "height": 1.2},
+            "style": {
+              "font_size": 28,
+              "font_bold": false,
+              "font_color": "#FFFFFF",
+              "alignment": "center"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type_id": "section",
+      "name": "章節分隔頁",
+      "description": "用於分隔不同主題章節",
+      "llm_instruction": "在切換主題時使用，只需要一個簡短的章節標題。",
+      "json_schema": {
+        "slide_type": "section",
+        "section_title": "章節標題"
+      },
+      "pptx_layout": {
+        "layout_index": 6,
+        "background": {
+          "type": "solid",
+          "color": "#3970A1"
+        },
+        "elements": [
+          {
+            "type": "textbox",
+            "name": "section_title",
+            "position": {"left": 0.8, "top": 2.8, "width": 8.4, "height": 1.8},
+            "style": {
+              "font_size": 50,
+              "font_bold": true,
+              "font_color": "#FFFFFF",
+              "alignment": "center"
+            }
+          },
+          {
+            "type": "shape",
+            "name": "decoration_line_top",
+            "shape_type": "rectangle",
+            "position": {"left": 4.0, "top": 2.6, "width": 2.0, "height": 0.04},
+            "style": {
+              "fill_color": "#FFFFFF"
+            }
+          },
+          {
+            "type": "shape",
+            "name": "decoration_line_bottom",
+            "shape_type": "rectangle",
+            "position": {"left": 4.0, "top": 4.9, "width": 2.0, "height": 0.04},
+            "style": {
+              "fill_color": "#FFFFFF"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type_id": "text_content",
+      "name": "純文字內容頁",
+      "description": "包含標題和項目符號列表的內容頁",
+      "llm_instruction": "用於展示要點列表，每頁不超過5個要點。可以使用縮排來表示層級關係。",
+      "json_schema": {
+        "slide_type": "text_content",
+        "title": "頁面標題",
+        "bullets": ["要點1", "要點2", "要點3"],
+        "indent_levels": [0, 0, 1]
+      },
+      "pptx_layout": {
+        "layout_index": 6,
+        "background": {
+          "type": "solid",
+          "color": "#FFFFFF"
+        },
+        "elements": [
+          {
+            "type": "textbox",
+            "name": "title",
+            "position": {"left": 0.6, "top": 0.6, "width": 8.8, "height": 0.8},
+            "style": {
+              "font_size": 38,
+              "font_bold": true,
+              "font_color": "#2C3E50",
+              "alignment": "center"
+            }
+          },
+          {
+            "type": "shape",
+            "name": "title_underline",
+            "shape_type": "rectangle",
+            "position": {"left": 0.6, "top": 1.35, "width": 8.8, "height": 0.05},
+            "style": {
+              "fill_color": "#4682B4"
+            }
+          },
+          {
+            "type": "textbox",
+            "name": "content",
+            "position": {"left": 1.0, "top": 2.0, "width": 8.0, "height": 5.4},
+            "style": {
+              "font_size_base": 24,
+              "font_size_indent": 22,
+              "font_color_base": "#34495E",
+              "font_color_indent": "#555555",
+              "bullet_symbol_base": "▸",
+              "bullet_symbol_indent": "▸",
+              "bullet_size_base": 26,
+              "bullet_size_indent": 20,
+              "bullet_color_base": "#4682B4",
+              "bullet_color_indent": "#646464"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type_id": "image_with_text",
+      "name": "圖文混合頁",
+      "description": "包含圖片和說明文字的頁面",
+      "llm_instruction": "用於展示圖片並配上說明。layout可以是'horizontal'（左圖右文）或'vertical'（上圖下文）。",
+      "json_schema": {
+        "slide_type": "image_with_text",
+        "title": "標題",
+        "image_id": "img_01",
+        "text": "說明文字",
+        "layout": "horizontal"
+      },
+      "pptx_layout": {
+        "layout_index": 6,
+        "background": {
+          "type": "solid",
+          "color": "#FFFFFF"
+        },
+        "elements": [
+          {
+            "type": "textbox",
+            "name": "title",
+            "position": {"left": 0.6, "top": 0.5, "width": 8.8, "height": 0.75},
+            "style": {
+              "font_size": 36,
+              "font_bold": true,
+              "font_color": "#2C3E50",
+              "alignment": "center"
+            }
+          },
+          {
+            "type": "image",
+            "name": "main_image",
+            "position_horizontal": {"left": 0.7, "top": 1.5, "max_width": 4.4, "max_height": 5.0},
+            "position_vertical": {"left": 1.0, "top": 1.5, "max_width": 8.0, "max_height": 3.2}
+          },
+          {
+            "type": "textbox",
+            "name": "text",
+            "position_horizontal": {"left": 5.35, "top": 2.5, "width": 4.0, "height": 5.0},
+            "position_vertical": {"left": 1.0, "top": 5.5, "width": 8.0, "height": 1.7},
+            "style": {
+              "font_size_horizontal": 21,
+              "font_size_vertical": 19,
+              "font_color": "#2C3E50",
+              "line_spacing": 1.5
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type_id": "full_image",
+      "name": "大圖展示頁",
+      "description": "以大圖為主的展示頁",
+      "llm_instruction": "用於展示重要的圖片，配上簡短的標題和說明。",
+      "json_schema": {
+        "slide_type": "full_image",
+        "title": "標題",
+        "image_id": "img_02",
+        "caption": "圖片說明"
+      },
+      "pptx_layout": {
+        "layout_index": 6,
+        "background": {
+          "type": "solid",
+          "color": "#FFFFFF"
+        },
+        "elements": [
+          {
+            "type": "textbox",
+            "name": "title",
+            "position": {"left": 1.0, "top": 0.5, "width": 8.0, "height": 0.75},
+            "style": {
+              "font_size": 36,
+              "font_bold": true,
+              "font_color": "#2C3E50",
+              "alignment": "center"
+            }
+          },
+          {
+            "type": "image",
+            "name": "main_image",
+            "position": {"left": 1.25, "top": 1.9, "max_width": 7.5, "max_height": 4.2}
+          },
+          {
+            "type": "textbox",
+            "name": "caption",
+            "position": {"left": 0.8, "top": 6.5, "width": 8.4, "height": 0.7},
+            "style": {
+              "font_size": 16,
+              "font_color": "#7F8C8D",
+              "alignment": "center"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type_id": "closing",
+      "name": "結尾頁",
+      "description": "簡報結束頁",
+      "llm_instruction": "簡報的最後一頁，通常是感謝語或聯絡方式。",
+      "json_schema": {
+        "slide_type": "closing",
+        "closing_text": "謝謝觀看",
+        "subtext": "聯絡方式或其他信息（選填）"
+      },
+      "pptx_layout": {
+        "layout_index": 6,
+        "background": {
+          "type": "gradient",
+          "color_start": "#f093fb",
+          "color_end": "#f5576c"
+        },
+        "elements": [
+          {
+            "type": "textbox",
+            "name": "closing_text",
+            "position": {"left": 0.5, "top": 2.5, "width": 9.0, "height": 1.8},
+            "style": {
+              "font_size": 50,
+              "font_bold": true,
+              "font_color": "#FFFFFF",
+              "alignment": "center"
+            }
+          },
+          {
+            "type": "textbox",
+            "name": "subtext",
+            "position": {"left": 0.5, "top": 4.5, "width": 9.0, "height": 1.0},
+            "style": {
+              "font_size": 26,
+              "font_color": "#FFFFFF",
+              "alignment": "center"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
+

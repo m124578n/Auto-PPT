@@ -145,7 +145,7 @@ class PerformanceLogger:
 
 class AppLogger:
     """应用日志管理器"""
-    
+
     def __init__(
         self,
         name: str = "AutoPPT",
@@ -175,26 +175,26 @@ class AppLogger:
         self.name = name
         self.log_dir = Path(log_dir)
         self.level = level
-        
+
         # 创建日志目录
         if file_output:
             self.log_dir.mkdir(parents=True, exist_ok=True)
-        
+
         # 生成日志文件名
         if log_file is None:
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            timestamp = datetime.now().strftime("%Y%m%d")
             log_file = f"{name}_{timestamp}.log"
-        
+
         self.log_file = self.log_dir / log_file
-        
+
         # 创建 logger
         self.logger = logging.getLogger(name)
         self.logger.setLevel(level)
         self.logger.propagate = False
-        
+
         # 清除已有的 handlers
         self.logger.handlers.clear()
-        
+
         # 创建格式化器
         detailed_format = (
             '%(asctime)s | '
@@ -202,20 +202,20 @@ class AppLogger:
             '%(name)s.%(funcName)s:%(lineno)d | '
             '%(message)s'
         )
-        
+
         simple_format = (
             '%(asctime)s | '
             '%(levelname)-8s | '
             '%(message)s'
         )
-        
+
         date_format = '%Y-%m-%d %H:%M:%S'
-        
+
         # 控制台 handler
         if console_output:
             console_handler = logging.StreamHandler(sys.stdout)
             console_handler.setLevel(level)
-            
+
             if colored and sys.stdout.isatty():
                 console_formatter = ColoredFormatter(
                     simple_format,
@@ -226,10 +226,10 @@ class AppLogger:
                     simple_format,
                     datefmt=date_format
                 )
-            
+
             console_handler.setFormatter(console_formatter)
             self.logger.addHandler(console_handler)
-        
+
         # 文件 handler（带轮转）
         if file_output:
             file_handler = RotatingFileHandler(
@@ -245,75 +245,75 @@ class AppLogger:
             )
             file_handler.setFormatter(file_formatter)
             self.logger.addHandler(file_handler)
-        
+
         # 创建性能监控器
         self.performance = PerformanceLogger(self.logger)
-        
+
         # 记录初始化信息
         self.logger.info("=" * 60)
         self.logger.info(f"🚀 {name} 日志系统已启动")
         self.logger.info(f"📁 日志文件: {self.log_file if file_output else '无'}")
         self.logger.info(f"📊 日志级别: {logging.getLevelName(level)}")
         self.logger.info("=" * 60)
-    
+
     def debug(self, message: str, **kwargs):
         """调试日志"""
         self.logger.debug(message, **kwargs)
-    
+
     def info(self, message: str, **kwargs):
         """信息日志"""
         self.logger.info(message, **kwargs)
-    
+
     def warning(self, message: str, **kwargs):
         """警告日志"""
         self.logger.warning(message, **kwargs)
-    
+
     def error(self, message: str, **kwargs):
         """错误日志"""
         self.logger.error(message, **kwargs)
-    
+
     def critical(self, message: str, **kwargs):
         """严重错误日志"""
         self.logger.critical(message, **kwargs)
-    
+
     def exception(self, message: str, **kwargs):
         """异常日志（包含堆栈跟踪）"""
         self.logger.exception(message, **kwargs)
-    
+
     def section(self, title: str):
         """记录章节标题"""
         self.logger.info("")
         self.logger.info("=" * 60)
         self.logger.info(f"📌 {title}")
         self.logger.info("=" * 60)
-    
+
     def subsection(self, title: str):
         """记录子章节标题"""
         self.logger.info("")
         self.logger.info(f"▶ {title}")
         self.logger.info("-" * 60)
-    
+
     def success(self, message: str):
         """成功信息"""
         self.logger.info(f"✅ {message}")
-    
+
     def failure(self, message: str):
         """失败信息"""
         self.logger.error(f"❌ {message}")
-    
+
     def progress(self, current: int, total: int, message: str = ""):
         """进度信息"""
         percentage = (current / total * 100) if total > 0 else 0
         bar_length = 30
         filled = int(bar_length * current / total) if total > 0 else 0
         bar = "█" * filled + "░" * (bar_length - filled)
-        
+
         progress_msg = f"[{bar}] {percentage:.1f}% ({current}/{total})"
         if message:
             progress_msg += f" - {message}"
-        
+
         self.logger.info(progress_msg)
-    
+
     def table(self, headers: list, rows: list):
         """记录表格"""
         # 计算列宽
@@ -321,10 +321,10 @@ class AppLogger:
         for row in rows:
             for i, cell in enumerate(row):
                 col_widths[i] = max(col_widths[i], len(str(cell)))
-        
+
         # 分隔线
         separator = "+" + "+".join("-" * (w + 2) for w in col_widths) + "+"
-        
+
         # 表头
         self.logger.info(separator)
         header_row = "|" + "|".join(
@@ -332,16 +332,16 @@ class AppLogger:
         ) + "|"
         self.logger.info(header_row)
         self.logger.info(separator)
-        
+
         # 数据行
         for row in rows:
             data_row = "|" + "|".join(
                 f" {str(cell):<{col_widths[i]}} " for i, cell in enumerate(row)
             ) + "|"
             self.logger.info(data_row)
-        
+
         self.logger.info(separator)
-    
+
     def log_dict(self, title: str, data: dict, indent: int = 0):
         """记录字典数据"""
         self.logger.info(f"{' ' * indent}{title}:")
@@ -350,36 +350,36 @@ class AppLogger:
                 self.log_dict(key, value, indent + 2)
             else:
                 self.logger.info(f"{' ' * (indent + 2)}{key}: {value}")
-    
+
     def log_function_call(self, func_name: str, args: tuple = (), kwargs: dict = None):
         """记录函数调用"""
         kwargs = kwargs or {}
         args_str = ", ".join(map(str, args))
         kwargs_str = ", ".join(f"{k}={v}" for k, v in kwargs.items())
         params = ", ".join(filter(None, [args_str, kwargs_str]))
-        
+
         self.logger.debug(f"🔧 调用函数: {func_name}({params})")
-    
+
     def log_return(self, func_name: str, result: Any):
         """记录函数返回值"""
         self.logger.debug(f"↩️  {func_name} 返回: {result}")
-    
+
     def timer(self, name: str):
         """计时器上下文管理器"""
         class TimerContext:
             def __init__(ctx_self, logger_instance):
                 ctx_self.logger = logger_instance
                 ctx_self.name = name
-            
+
             def __enter__(ctx_self):
                 ctx_self.logger.performance.start_timer(name)
                 return ctx_self
-            
+
             def __exit__(ctx_self, exc_type, exc_val, exc_tb):
                 ctx_self.logger.performance.end_timer(name)
-        
+
         return TimerContext(self)
-    
+
     def catch_exceptions(self, reraise: bool = True):
         """异常捕获装饰器"""
         def decorator(func: Callable) -> Callable:
@@ -395,7 +395,7 @@ class AppLogger:
                     return None
             return wrapper
         return decorator
-    
+
     def log_performance(self, func: Callable) -> Callable:
         """性能监控装饰器"""
         @wraps(func)
@@ -403,29 +403,29 @@ class AppLogger:
             func_name = func.__name__
             self.log_function_call(func_name, args, kwargs)
             self.performance.start_timer(func_name)
-            
+
             try:
                 result = func(*args, **kwargs)
                 self.log_return(func_name, result)
                 return result
             finally:
                 self.performance.end_timer(func_name)
-        
+
         return wrapper
-    
+
     def set_level(self, level: int):
         """设置日志级别"""
         self.logger.setLevel(level)
         for handler in self.logger.handlers:
             handler.setLevel(level)
         self.logger.info(f"日志级别已更改为: {logging.getLevelName(level)}")
-    
+
     def close(self):
         """关闭日志系统"""
         self.logger.info("=" * 60)
         self.logger.info(f"👋 {self.name} 日志系统已关闭")
         self.logger.info("=" * 60)
-        
+
         for handler in self.logger.handlers:
             handler.close()
 
@@ -568,4 +568,3 @@ if __name__ == "__main__":
     
     # 关闭日志
     logger.close()
-
