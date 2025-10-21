@@ -477,16 +477,37 @@ class PPTXGenerator:
         self.image_metadata = image_metadata or {}
 
         # 創建 Presentation
-        self.prs = Presentation()
+        # 如果模板有 PPTX 文件，使用它作為基礎
+        if self.template and self.template.pptx_path:
+            # 使用 PPTX 模板文件創建新的 Presentation
+            self.prs = Presentation(self.template.pptx_path)
+            logger.info(f"   ✓ 使用 PPTX 模板文件：{self.template.pptx_path}")
 
-        # 從模板獲取尺寸配置
-        if self.template:
+            # 刪除模板中原本的 slides
+            self._clear_template_slides()
+        elif self.template:
+            # 只有 JSON 配置，創建新的 Presentation
+            self.prs = Presentation()
             config = self.template.get_presentation_config()
             self.prs.slide_width = Inches(config["slide_width"])
             self.prs.slide_height = Inches(config["slide_height"])
         else:
+            # 沒有模板，使用默認設置
+            self.prs = Presentation()
             self.prs.slide_width = Inches(10)
             self.prs.slide_height = Inches(7.5)
+
+    def _clear_template_slides(self):
+        """刪除模板中原本的 slides"""
+        slide_count = len(self.prs.slides)
+        if slide_count > 0:
+            logger.info(f"   ✓ 刪除模板中的 {slide_count} 個示例 slides...")
+            # 從後往前刪除所有 slides
+            for i in range(slide_count - 1, -1, -1):
+                rId = self.prs.slides._sldIdLst[i].rId
+                self.prs.part.drop_rel(rId)
+                del self.prs.slides._sldIdLst[i]
+            logger.info(f"   ✓ 已清空模板 slides，保留布局和主題")
 
     def generate_from_data(self, ai_data: Dict) -> Presentation:
         """從 AI JSON 數據生成 PPTX（使用模板引擎）

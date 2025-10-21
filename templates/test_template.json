@@ -1,0 +1,418 @@
+{
+  "template_info": {
+    "name": "測試模板",
+    "version": "1.0.0",
+    "description": "根據分析的 PPTX 文件結構自動生成的模板。",
+    "author": "Auto Generated",
+    "slide_width": 13.333333333333334,
+    "slide_height": 7.5
+  },
+  "slide_types": [
+    {
+      "type_id": "title_slide",
+      "name": "標題投影片",
+      "description": "簡報的標題頁面，用於展示簡報標題。",
+      "llm_instruction": "用於簡報的開頭，展示簡報的標題。",
+      "json_schema": {
+        "slide_type": "title_slide",
+        "title": "簡報標題"
+      },
+      "pptx_layout": {
+        "layout_index": 0,
+        "background": {
+          "type": "solid",
+          "color": "#FFFFFF"
+        },
+        "elements": []
+      }
+    },
+    {
+      "type_id": "image_content_slide",
+      "name": "含影像的標題及內容",
+      "description": "包含圖片和內容的頁面，通常用於展示具體信息。",
+      "llm_instruction": "用於展示圖片和相關內容，可以包含標題和描述。",
+      "json_schema": {
+        "slide_type": "image_content_slide",
+        "title": "頁面標題",
+        "image_id": "圖片ID",
+        "content": "頁面內容"
+      },
+      "pptx_layout": {
+        "layout_index": 1,
+        "background": {
+          "type": "solid",
+          "color": "#FFFFFF"
+        },
+        "elements": [
+          {
+            "type": "textbox",
+            "name": "title",
+            "position": {
+              "left": 0.91,
+              "top": 0.7,
+              "width": 3.0,
+              "height": 1.46
+            },
+            "style": {
+              "alignment": "center"
+            },
+            "sample_text": ""
+          },
+          {
+            "type": "textbox",
+            "name": "content",
+            "position": {
+              "left": 6.42,
+              "top": 3.42,
+              "width": 0.25,
+              "height": 2.46
+            },
+            "style": {
+              "alignment": "center"
+            },
+            "sample_text": ""
+          },
+          {
+            "type": "textbox",
+            "name": "slide_number",
+            "position": {
+              "left": 12.81,
+              "top": 6.98,
+              "width": 0.62,
+              "height": 0.42
+            },
+            "style": {},
+            "sample_text": "2"
+          }
+        ]
+      }
+    },
+    {
+      "type_id": "section_header",
+      "name": "章節標題",
+      "description": "用於分隔不同章節的標題頁面。",
+      "llm_instruction": "用於標示新的章節開始，應包含章節標題。",
+      "json_schema": {
+        "slide_type": "section_header",
+        "section_title": "章節標題"
+      },
+      "pptx_layout": {
+        "layout_index": 2,
+        "background": {
+          "type": "solid",
+          "color": "#FFFFFF"
+        },
+        "elements": []
+      }
+    },
+    {
+      "type_id": "title_subtitle_image",
+      "name": "標題、子標題及影像",
+      "description": "包含標題、子標題和圖片的頁面。",
+      "llm_instruction": "用於展示標題、子標題和相關圖片。",
+      "json_schema": {
+        "slide_type": "title_subtitle_image",
+        "title": "頁面標題",
+        "subtitle": "頁面子標題",
+        "image_id": "圖片ID"
+      },
+      "pptx_layout": {
+        "layout_index": 3,
+        "background": {
+          "type": "solid",
+          "color": "#FFFFFF"
+        },
+        "elements": [
+          {
+            "type": "textbox",
+            "name": "slide_number",
+            "position": {
+              "left": 12.81,
+              "top": 6.98,
+              "width": 0.62,
+              "height": 0.42
+            },
+            "style": {},
+            "sample_text": "4"
+          }
+        ]
+      }
+    },
+    {
+      "type_id": "title_subtitle",
+      "name": "標題與子標題",
+      "description": "只包含標題和子標題的頁面。",
+      "llm_instruction": "用於展示標題和子標題，通常用於簡短的介紹。",
+      "json_schema": {
+        "slide_type": "title_subtitle",
+        "title": "頁面標題",
+        "subtitle": "頁面子標題"
+      },
+      "pptx_layout": {
+        "layout_index": 4,
+        "background": {
+          "type": "solid",
+          "color": "#FFFFFF"
+        },
+        "elements": []
+      }
+    },
+    {
+      "type_id": "title_content",
+      "name": "標題及文字",
+      "description": "包含標題和文字內容的頁面。",
+      "llm_instruction": "用於展示標題和相關的文字內容。",
+      "json_schema": {
+        "slide_type": "title_content",
+        "title": "頁面標題",
+        "content": "頁面內容"
+      },
+      "pptx_layout": {
+        "layout_index": 5,
+        "background": {
+          "type": "solid",
+          "color": "#FFFFFF"
+        },
+        "elements": [
+          {
+            "type": "textbox",
+            "name": "slide_number",
+            "position": {
+              "left": 12.81,
+              "top": 6.98,
+              "width": 0.62,
+              "height": 0.42
+            },
+            "style": {},
+            "sample_text": "6"
+          }
+        ]
+      }
+    },
+    {
+      "type_id": "title_only",
+      "name": "只有標題",
+      "description": "只包含標題的頁面。",
+      "llm_instruction": "用於展示單獨的標題。",
+      "json_schema": {
+        "slide_type": "title_only",
+        "title": "頁面標題"
+      },
+      "pptx_layout": {
+        "layout_index": 6,
+        "background": {
+          "type": "solid",
+          "color": "#FFFFFF"
+        },
+        "elements": []
+      }
+    },
+    {
+      "type_id": "two_content_image",
+      "name": "含影像的兩個內容",
+      "description": "包含圖片和兩個內容塊的頁面。",
+      "llm_instruction": "用於展示圖片和兩個相關的內容塊。",
+      "json_schema": {
+        "slide_type": "two_content_image",
+        "image_id": "圖片ID",
+        "content_1": "內容塊1",
+        "content_2": "內容塊2"
+      },
+      "pptx_layout": {
+        "layout_index": 7,
+        "background": {
+          "type": "solid",
+          "color": "#FFFFFF"
+        },
+        "elements": [
+          {
+            "type": "textbox",
+            "name": "slide_number",
+            "position": {
+              "left": 12.81,
+              "top": 6.98,
+              "width": 0.62,
+              "height": 0.42
+            },
+            "style": {},
+            "sample_text": "8"
+          },
+          {
+            "type": "textbox",
+            "name": "content",
+            "position": {
+              "left": 0.31,
+              "top": 2.98,
+              "width": 1.41,
+              "height": 1.41
+            },
+            "style": {
+              "alignment": "center"
+            },
+            "sample_text": ""
+          }
+        ]
+      }
+    },
+    {
+      "type_id": "two_content",
+      "name": "兩個內容",
+      "description": "包含兩個內容塊的頁面。",
+      "llm_instruction": "用於展示兩個相關的內容塊。",
+      "json_schema": {
+        "slide_type": "two_content",
+        "content_1": "內容塊1",
+        "content_2": "內容塊2"
+      },
+      "pptx_layout": {
+        "layout_index": 8,
+        "background": {
+          "type": "solid",
+          "color": "#FFFFFF"
+        },
+        "elements": [
+          {
+            "type": "textbox",
+            "name": "slide_number",
+            "position": {
+              "left": 12.81,
+              "top": 6.98,
+              "width": 0.62,
+              "height": 0.42
+            },
+            "style": {},
+            "sample_text": "9"
+          }
+        ]
+      }
+    },
+    {
+      "type_id": "two_content_2",
+      "name": "兩個內容 2",
+      "description": "包含兩個內容塊的頁面，另一種佈局。",
+      "llm_instruction": "用於展示兩個相關的內容塊，另一種佈局。",
+      "json_schema": {
+        "slide_type": "two_content_2",
+        "content_1": "內容塊1",
+        "content_2": "內容塊2"
+      },
+      "pptx_layout": {
+        "layout_index": 9,
+        "background": {
+          "type": "solid",
+          "color": "#FFFFFF"
+        },
+        "elements": [
+          {
+            "type": "textbox",
+            "name": "slide_number",
+            "position": {
+              "left": 12.81,
+              "top": 6.98,
+              "width": 0.62,
+              "height": 0.42
+            },
+            "style": {},
+            "sample_text": "10"
+          }
+        ]
+      }
+    },
+    {
+      "type_id": "title_content_2",
+      "name": "標題及內容",
+      "description": "包含標題和內容的頁面。",
+      "llm_instruction": "用於展示標題和相關的內容。",
+      "json_schema": {
+        "slide_type": "title_content_2",
+        "title": "頁面標題",
+        "content": "頁面內容"
+      },
+      "pptx_layout": {
+        "layout_index": 10,
+        "background": {
+          "type": "solid",
+          "color": "#FFFFFF"
+        },
+        "elements": [
+          {
+            "type": "textbox",
+            "name": "slide_number",
+            "position": {
+              "left": 12.81,
+              "top": 6.98,
+              "width": 0.62,
+              "height": 0.42
+            },
+            "style": {},
+            "sample_text": "11"
+          }
+        ]
+      }
+    },
+    {
+      "type_id": "content_with_title",
+      "name": "含標題的內容",
+      "description": "包含標題和內容的頁面，另一種佈局。",
+      "llm_instruction": "用於展示標題和相關的內容，另一種佈局。",
+      "json_schema": {
+        "slide_type": "content_with_title",
+        "title": "頁面標題",
+        "content": "頁面內容"
+      },
+      "pptx_layout": {
+        "layout_index": 11,
+        "background": {
+          "type": "solid",
+          "color": "#FFFFFF"
+        },
+        "elements": [
+          {
+            "type": "textbox",
+            "name": "slide_number",
+            "position": {
+              "left": 12.81,
+              "top": 6.98,
+              "width": 0.62,
+              "height": 0.42
+            },
+            "style": {},
+            "sample_text": "12"
+          },
+          {
+            "type": "textbox",
+            "name": "content",
+            "position": {
+              "left": 4.23,
+              "top": 3.08,
+              "width": 1.19,
+              "height": 7.64
+            },
+            "style": {
+              "alignment": "center"
+            },
+            "sample_text": ""
+          }
+        ]
+      }
+    },
+    {
+      "type_id": "closing_slide",
+      "name": "結語",
+      "description": "簡報的結尾頁面，用於展示感謝信息。",
+      "llm_instruction": "用於簡報的結尾，展示感謝信息。",
+      "json_schema": {
+        "slide_type": "closing_slide",
+        "closing_text": "感謝信息"
+      },
+      "pptx_layout": {
+        "layout_index": 12,
+        "background": {
+          "type": "solid",
+          "color": "#FFFFFF"
+        },
+        "elements": []
+      }
+    }
+  ]
+}

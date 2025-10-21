@@ -44,7 +44,8 @@ class AutoPPT:
         use_images: bool = False,
         output_dir: str = "temp_dir",
         scrapy: SyncScrapyPlaywright = None,
-        template_path: str = None,
+        template_json_path: str = None,
+        template_pptx_path: str = None,
     ):
         """
         初始化 AutoPPT
@@ -54,7 +55,8 @@ class AutoPPT:
             use_images: 是否使用圖片資源
             output_dir: 輸出目錄
             scrapy: 爬蟲實例
-            template_path: 模板 JSON 文件路徑（可選）
+            template_json_path: 模板 JSON 配置文件路徑（可選）
+            template_pptx_path: 模板 PPTX 文件路徑（可選，用於保留原始設計）
         """
         self.client = genai.Client(api_key=api_key)
         self.use_images = use_images
@@ -74,8 +76,17 @@ class AutoPPT:
         self.scrapy = scrapy or SyncScrapyPlaywright()
 
         # 加載模板
-        self.template = PPTXTemplate(template_path)
-        logger.info(f"   🎨 模板：{self.template}")
+        self.template = PPTXTemplate(
+            json_path=template_json_path, pptx_path=template_pptx_path
+        )
+
+        if template_pptx_path:
+            logger.info(f"   🎨 使用 PPTX 模板：{template_pptx_path}")
+            logger.info(f"   📋 配置文件：{template_json_path or 'default'}")
+        elif template_json_path:
+            logger.info(f"   📋 使用 JSON 模板：{template_json_path}")
+        else:
+            logger.info(f"   📋 使用默認模板")
 
     def load_images(self):
         """載入圖片資源"""
@@ -219,6 +230,7 @@ class AutoPPT:
         pptx_gen = PPTXGenerator(self.image_metadata, template=self.template)
         prs = pptx_gen.generate_from_data(data)
 
+        
         # 生成文件名
         if not filename:
             filename = os.path.join(

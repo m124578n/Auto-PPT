@@ -55,7 +55,15 @@ def main():
 
     # 初始化 AutoPPT
     tempfile_dir = tempfile.mkdtemp(dir="temp_dir")
-    auto_ppt = AutoPPT(api_key=API_KEY, use_images=USE_IMAGES, output_dir=tempfile_dir)
+    json_path = "templates/test_template.json"
+    pptx_path = "pptx_template/test.pptx"
+    auto_ppt = AutoPPT(
+        api_key=API_KEY,
+        use_images=USE_IMAGES,
+        output_dir=tempfile_dir,
+        template_json_path=json_path,
+        template_pptx_path=pptx_path,
+    )
 
     # 生成簡報（可選擇是否使用 PDF）
     pdf_file = (
@@ -68,7 +76,15 @@ def main():
 def scrapy_and_generate():
     prompt = "請幫我統整這兩個旅遊的行程, 並生成簡報"
     tempfile_dir = tempfile.mkdtemp(dir="temp_dir")
-    auto_ppt = AutoPPT(api_key=API_KEY, use_images=USE_IMAGES, output_dir=tempfile_dir)
+    json_path = "templates/test_template.json"
+    pptx_path = "pptx_template/test.pptx"
+    auto_ppt = AutoPPT(
+        api_key=API_KEY,
+        use_images=USE_IMAGES,
+        output_dir=tempfile_dir,
+        template_json_path=json_path,
+        template_pptx_path=pptx_path,
+    )
     auto_ppt.generate(
         prompt=prompt,
         save_files=True,
@@ -80,5 +96,5 @@ def scrapy_and_generate():
 
 
 if __name__ == "__main__":
-    # main()
-    scrapy_and_generate()
+    main()
+    # scrapy_and_generate()

@@ -1,0 +1,284 @@
+{
+  "slide_width": 13.333333333333334,
+  "slide_height": 7.5,
+  "total_slides": 13,
+  "slides": [
+    {
+      "slide_number": 1,
+      "layout_name": "標題投影片",
+      "background": {
+        "type": "solid",
+        "color": "#FFFFFF"
+      },
+      "elements": []
+    },
+    {
+      "slide_number": 2,
+      "layout_name": "含影像的標題及內容",
+      "background": {
+        "type": "solid",
+        "color": "#FFFFFF"
+      },
+      "elements": [
+        {
+          "type": "textbox",
+          "name": "caption",
+          "position": {
+            "left": 0.91,
+            "top": 0.7,
+            "width": 3.0,
+            "height": 1.46
+          },
+          "style": {
+            "alignment": "center"
+          },
+          "sample_text": ""
+        },
+        {
+          "type": "textbox",
+          "name": "caption",
+          "position": {
+            "left": 6.42,
+            "top": 3.42,
+            "width": 0.25,
+            "height": 2.46
+          },
+          "style": {
+            "alignment": "center"
+          },
+          "sample_text": ""
+        },
+        {
+          "type": "textbox",
+          "name": "caption",
+          "position": {
+            "left": 12.81,
+            "top": 6.98,
+            "width": 0.62,
+            "height": 0.42
+          },
+          "style": {},
+          "sample_text": "2"
+        }
+      ]
+    },
+    {
+      "slide_number": 3,
+      "layout_name": "章節標題",
+      "background": {
+        "type": "solid",
+        "color": "#FFFFFF"
+      },
+      "elements": []
+    },
+    {
+      "slide_number": 4,
+      "layout_name": "標題、子標題及影像",
+      "background": {
+        "type": "solid",
+        "color": "#FFFFFF"
+      },
+      "elements": [
+        {
+          "type": "textbox",
+          "name": "caption",
+          "position": {
+            "left": 12.81,
+            "top": 6.98,
+            "width": 0.62,
+            "height": 0.42
+          },
+          "style": {},
+          "sample_text": "4"
+        }
+      ]
+    },
+    {
+      "slide_number": 5,
+      "layout_name": "標題與子標題",
+      "background": {
+        "type": "solid",
+        "color": "#FFFFFF"
+      },
+      "elements": []
+    },
+    {
+      "slide_number": 6,
+      "layout_name": "標題及文字",
+      "background": {
+        "type": "solid",
+        "color": "#FFFFFF"
+      },
+      "elements": [
+        {
+          "type": "textbox",
+          "name": "caption",
+          "position": {
+            "left": 12.81,
+            "top": 6.98,
+            "width": 0.62,
+            "height": 0.42
+          },
+          "style": {},
+          "sample_text": "6"
+        }
+      ]
+    },
+    {
+      "slide_number": 7,
+      "layout_name": "只有標題",
+      "background": {
+        "type": "solid",
+        "color": "#FFFFFF"
+      },
+      "elements": []
+    },
+    {
+      "slide_number": 8,
+      "layout_name": "含影像的兩個內容",
+      "background": {
+        "type": "solid",
+        "color": "#FFFFFF"
+      },
+      "elements": [
+        {
+          "type": "textbox",
+          "name": "caption",
+          "position": {
+            "left": 12.81,
+            "top": 6.98,
+            "width": 0.62,
+            "height": 0.42
+          },
+          "style": {},
+          "sample_text": "8"
+        },
+        {
+          "type": "textbox",
+          "name": "caption",
+          "position": {
+            "left": 0.31,
+            "top": 2.98,
+            "width": 1.41,
+            "height": 1.41
+          },
+          "style": {
+            "alignment": "center"
+          },
+          "sample_text": ""
+        }
+      ]
+    },
+    {
+      "slide_number": 9,
+      "layout_name": "兩個內容",
+      "background": {
+        "type": "solid",
+        "color": "#FFFFFF"
+      },
+      "elements": [
+        {
+          "type": "textbox",
+          "name": "caption",
+          "position": {
+            "left": 12.81,
+            "top": 6.98,
+            "width": 0.62,
+            "height": 0.42
+          },
+          "style": {},
+          "sample_text": "9"
+        }
+      ]
+    },
+    {
+      "slide_number": 10,
+      "layout_name": "兩個內容 2",
+      "background": {
+        "type": "solid",
+        "color": "#FFFFFF"
+      },
+      "elements": [
+        {
+          "type": "textbox",
+          "name": "caption",
+          "position": {
+            "left": 12.81,
+            "top": 6.98,
+            "width": 0.62,
+            "height": 0.42
+          },
+          "style": {},
+          "sample_text": "10"
+        }
+      ]
+    },
+    {
+      "slide_number": 11,
+      "layout_name": "標題及內容",
+      "background": {
+        "type": "solid",
+        "color": "#FFFFFF"
+      },
+      "elements": [
+        {
+          "type": "textbox",
+          "name": "caption",
+          "position": {
+            "left": 12.81,
+            "top": 6.98,
+            "width": 0.62,
+            "height": 0.42
+          },
+          "style": {},
+          "sample_text": "11"
+        }
+      ]
+    },
+    {
+      "slide_number": 12,
+      "layout_name": "含標題的內容",
+      "background": {
+        "type": "solid",
+        "color": "#FFFFFF"
+      },
+      "elements": [
+        {
+          "type": "textbox",
+          "name": "caption",
+          "position": {
+            "left": 12.81,
+            "top": 6.98,
+            "width": 0.62,
+            "height": 0.42
+          },
+          "style": {},
+          "sample_text": "12"
+        },
+        {
+          "type": "textbox",
+          "name": "content",
+          "position": {
+            "left": 4.23,
+            "top": 3.08,
+            "width": 1.19,
+            "height": 7.64
+          },
+          "style": {
+            "alignment": "center"
+          },
+          "sample_text": ""
+        }
+      ]
+    },
+    {
+      "slide_number": 13,
+      "layout_name": "結語",
+      "background": {
+        "type": "solid",
+        "color": "#FFFFFF"
+      },
+      "elements": []
+    }
+  ]
+}
